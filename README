@@ -1,0 +1,33 @@
+BITSET
+Released under the PHP License 3.0
+
+
+This extension is a library for managing sets of bits in terms of Set Theory.
+By development the greatest attention has been given to performance.
+
+
+COMPILATION
+-----------
+
+To compile the extension in your PHP, do as follows:
+
+- Uncompress the tarball
+- Run phpize
+- Run ./configure [--enable-bitset]
+- Run make, then make install.
+- Either load the extension dynamically into your scripts (with dl()) or add
+  an extension= entry for it in your php.ini
+
+
+USAGE
+-----
+
+PHP scripts in the tests diectory cover extension functionality complitely 
+and can be used as an example of lybrary's usage
+
+
+REPORTING BUGS
+--------------
+
+THIS EXTENSION IS EXPERIMENTAL. Please report all bugs and send all 
+request/suggestions/quips/complaints to the PECL website

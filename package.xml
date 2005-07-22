@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE package SYSTEM "http://pear.php.net/dtd/package-1.0">
+<package version="1.0">
+  <name>bitset</name>
+  <summary>BITSET library</summary>
+  <description>Sets of bits manipuliting library</description>
+  <maintainers>
+    <maintainer>
+      <user>cawa</user>
+      <name>Alexander Veremyev</name>
+      <email>cawa@php.net</email>
+      <role>lead</role>
+    </maintainer>
+  </maintainers>
+  <release>
+    <version>1.0</version>
+    <date>2005-07-22</date>
+    <license>PHP</license>
+    <state>stable</state>
+    <notes>First official stable release of Bitset</notes>
+    <filelist>
+      <file role="test" name="tests/001.phpt"/>
+      <file role="test" name="tests/002.phpt"/>
+      <file role="test" name="tests/003.phpt"/>
+      <file role="test" name="tests/004.phpt"/>
+      <file role="test" name="tests/005.phpt"/>
+      <file role="test" name="tests/006.phpt"/>
+      <file role="test" name="tests/007.phpt"/>
+      <file role="test" name="tests/008.phpt"/>
+      <file role="test" name="tests/009.phpt"/>
+      <file role="test" name="tests/010.phpt"/>
+      <file role="test" name="tests/011.phpt"/>
+      <file role="test" name="tests/012.phpt"/>
+      <file role="test" name="tests/013.phpt"/>
+      <file role="test" name="tests/014.phpt"/>
+      <file role="test" name="tests/015.phpt"/>
+      <file role="test" name="tests/016.phpt"/>
+      <file role="test" name="tests/017.phpt"/>
+      <file role="test" name="tests/018.phpt"/>
+      <file role="src" name="bitset.c"/>
+      <file role="src" name="bitset.dsp"/>
+      <file role="src" name="config.m4"/>
+      <file role="src" name="config.w32"/>
+      <file role="doc" name="CREDITS"/>
+      <file role="doc" name="EXPERIMENTAL"/>
+      <file role="src" name="php_bitset.h"/>
+      <file role="doc" name="README"/>
+    </filelist>
+  </release>
+  <changelog>
+    <release>
+      <version>1.0</version>
+      <date>2005-07-22</date>
+      <license>PHP</license>
+      <state>stable</state>
+      <notes>First official stable release of Bitset</notes>
+    </release>
+  </changelog>
+</package>
