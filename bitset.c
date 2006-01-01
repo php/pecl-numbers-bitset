@@ -547,7 +547,7 @@ PHP_FUNCTION(bitset_equal)
    Return a human readable string representation of a bitset */
 PHP_FUNCTION(bitset_to_string)
 {
-	long len = 0;
+	int len = 0;
 	unsigned char *bitset_data, *output_str;
 	long count;
 	
