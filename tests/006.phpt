@@ -22,7 +22,7 @@ bitset_fill
  if( bitset_to_string( bitset_fill(32) ) == "11111111111111111111111111111111" )
       echo "aligned large input1 - ok\n";
  if( bitset_to_string( bitset_fill(33) ) == "1111111111111111111111111111111110000000" )
-      echo "aligned large input1 - ok\n";
+      echo "aligned large input2 - ok\n";
 ?>
 --EXPECT--
 zero input - ok

@@ -25,7 +25,7 @@ bitset_empty
  if( bitset_to_string( bitset_empty(32) ) == "00000000000000000000000000000000" )
       echo "aligned large input1 - ok\n";
  if( bitset_to_string( bitset_empty(33) ) == "0000000000000000000000000000000000000000" )
-      echo "aligned large input1 - ok\n";
+      echo "aligned large input2 - ok\n";
 ?>
 --EXPECT--
 empty input - ok

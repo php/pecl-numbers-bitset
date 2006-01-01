@@ -37,10 +37,6 @@ ZEND_END_ARG_INFO();
 /* }}} */
 #endif
 
-
-/* True global resources - no need for thread safety here */
-static int le_bitset;
-
 static short  big_endian_byte_oder;
 /* indicates that bytes order is big endian (highest byte comes first)
    should be used for optimized shift operations
@@ -142,7 +138,8 @@ PHP_MINFO_FUNCTION(bitset)
    Return an empty bitset represented in a binary string. Optional parameter bitcount preallocates memory for bitset */
 PHP_FUNCTION(bitset_empty)
 {
-	long len, bits = 0;
+	int len;
+	long bits = 0;
 	unsigned char *bitset_data;
 	
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|l", &bits) == FAILURE) {
@@ -246,7 +243,8 @@ PHP_FUNCTION(bitset_excl)
    Checks if bit in bitset */
 PHP_FUNCTION(bitset_in)
 {
-	long len, bit;
+	int len;
+	long bit;
 	unsigned char *bitset_data;
 	
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sl", &bitset_data, &len, &bit) == FAILURE) {
@@ -303,7 +301,7 @@ PHP_FUNCTION(bitset_fill)
    Return an intersection of two bitsets */
 PHP_FUNCTION(bitset_intersection)
 {
-	long len1, len2, len;
+	int len1, len2, len;
 	unsigned char *bitset_data1, *bitset_data2, *bitset_datares;
 	long count;
 	
@@ -337,7 +335,7 @@ PHP_FUNCTION(bitset_intersection)
    Return an union of two bitsets */
 PHP_FUNCTION(bitset_union)
 {
-	long len1, len2, len, union_len;
+	int len1, len2, len, union_len;
 	unsigned char *bitset_data1, *bitset_data2, *bitset_datares;
 	long count;
 	
@@ -386,7 +384,8 @@ PHP_FUNCTION(bitset_invert)
 {
 	long size;
 	unsigned char *bitset_data, *bitset_out;
-	long invert_count, src_len, new_len, count;
+	long invert_count, count;
+	int src_len, new_len;
 	
 	
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sl", &bitset_data, &src_len, &size) == FAILURE) {
@@ -431,7 +430,7 @@ PHP_FUNCTION(bitset_invert)
    Return TRUE if bitset2 is a subset of bitset1 */
 PHP_FUNCTION(bitset_subset)
 {
-	long len1, len2;
+	int len1, len2;
 	unsigned char *bitset_data1, *bitset_data2, *rest;
 	long count, compare_len, zero_count;
 	
@@ -486,7 +485,7 @@ PHP_FUNCTION(bitset_subset)
    Return TRUE if bitset1 and bitset2 are equal. Please note that "01001110" and "0100111000000000" are equal */
 PHP_FUNCTION(bitset_equal)
 {
-	long len1, len2;
+	int len1, len2;
 	unsigned char *bitset_data1, *bitset_data2, *rest;
 	long count, compare_len, zero_count;
 	
@@ -574,7 +573,7 @@ PHP_FUNCTION(bitset_to_string)
    Return a bitset, calculated from a string  */
 PHP_FUNCTION(bitset_from_string)
 {
-	long str_len, len;
+	int str_len, len;
 	unsigned char *str_data, *bitset_data;
 	long data_index, str_index;
 	
@@ -608,7 +607,8 @@ PHP_FUNCTION(bitset_from_string)
    Return bitset mapped to an array */
 PHP_FUNCTION(bitset_to_hash)
 {
-	long len, count, count1;
+	int len;
+	long count, count1;
 	unsigned char *bitset_data;
 	
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &bitset_data, &len) == FAILURE) {
@@ -698,7 +698,8 @@ PHP_FUNCTION(bitset_from_hash)
    Return bitset represented as an array of bits */
 PHP_FUNCTION(bitset_to_array)
 {
-	long len, count, count1;
+	int len;
+	long count, count1;
 	unsigned char *bitset_data;
 	
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &bitset_data, &len) == FAILURE) {
@@ -828,7 +829,7 @@ PHP_FUNCTION(bitset_from_array)
    Return TRUE if bitset is empty */
 PHP_FUNCTION(bitset_is_empty)
 {
-	long len;
+	int len;
 	unsigned char *bitset_data;
 	long count;
 	
