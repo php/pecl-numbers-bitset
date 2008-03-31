@@ -74,7 +74,7 @@ zend_module_entry bitset_module_entry = {
 	NULL,
 	PHP_MINFO(bitset),
 #if ZEND_MODULE_API_NO >= 20010901
-	"1.0", /* Extension version number */
+	PHP_BITSET_VERSION, /* Extension version number */
 #endif
 	STANDARD_MODULE_PROPERTIES
 };
@@ -90,6 +90,7 @@ PHP_MINFO_FUNCTION(bitset)
 {
 	php_info_print_table_start();
 	php_info_print_table_header(2, "bitset support", "enabled");
+	php_info_print_table_row(2, "version", PHP_BITSET_VERSION);
 	php_info_print_table_end();
 }
 /* }}} */
