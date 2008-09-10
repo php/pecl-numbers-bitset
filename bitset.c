@@ -27,36 +27,123 @@
 #include "ext/standard/info.h"
 #include "php_bitset.h"
 
-#if COMPILE_DL_BITSET
-/* {{{ content from zend_arg_defs.c:
- * since it is a .c file, it won't be installed for use by PECL extensions, so we include it here. */
-ZEND_BEGIN_ARG_INFO(first_arg_force_ref, 0)
-	ZEND_ARG_PASS_INFO(1)
-ZEND_END_ARG_INFO();
+/* {{{ arginfo */
+static
+ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_empty, 0, 0, 0)
+	ZEND_ARG_INFO(0, bitcount)
+ZEND_END_ARG_INFO()
+
+static
+ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_incl, 0, 0, 2)
+	ZEND_ARG_INFO(1, bitset)
+	ZEND_ARG_INFO(0, bit)
+ZEND_END_ARG_INFO()
+
+static
+ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_excl, 0, 0, 2)
+	ZEND_ARG_INFO(1, bitset)
+	ZEND_ARG_INFO(0, bit)
+ZEND_END_ARG_INFO()
+
+static
+ZEND_BEGIN_ARG_INFO(arginfo_bitset_in, 0)
+	ZEND_ARG_INFO(0, bitset)
+	ZEND_ARG_INFO(0, bit)
+ZEND_END_ARG_INFO()
+
+static
+ZEND_BEGIN_ARG_INFO(arginfo_bitset_fill, 0)
+	ZEND_ARG_INFO(0, bitcount)
+ZEND_END_ARG_INFO()
+
+static
+ZEND_BEGIN_ARG_INFO(arginfo_bitset_intersection, 0)
+	ZEND_ARG_INFO(0, bitset1)
+	ZEND_ARG_INFO(0, bitset2)
+ZEND_END_ARG_INFO()
+
+static
+ZEND_BEGIN_ARG_INFO(arginfo_bitset_union, 0)
+	ZEND_ARG_INFO(0, bitset1)
+	ZEND_ARG_INFO(0, bitset2)
+ZEND_END_ARG_INFO()
+
+static
+ZEND_BEGIN_ARG_INFO(arginfo_bitset_invert, 0)
+	ZEND_ARG_INFO(0, bitset)
+	ZEND_ARG_INFO(0, size)
+ZEND_END_ARG_INFO()
+
+static
+ZEND_BEGIN_ARG_INFO(arginfo_bitset_subset, 0)
+	ZEND_ARG_INFO(0, bitset1)
+	ZEND_ARG_INFO(0, bitset2)
+ZEND_END_ARG_INFO()
+
+static
+ZEND_BEGIN_ARG_INFO(arginfo_bitset_equal, 0)
+	ZEND_ARG_INFO(0, bitset1)
+	ZEND_ARG_INFO(0, bitset2)
+ZEND_END_ARG_INFO()
+
+static
+ZEND_BEGIN_ARG_INFO(arginfo_bitset_to_string, 0)
+	ZEND_ARG_INFO(0, bitset)
+ZEND_END_ARG_INFO()
+
+static
+ZEND_BEGIN_ARG_INFO(arginfo_bitset_from_string, 0)
+	ZEND_ARG_INFO(0, source_str)
+ZEND_END_ARG_INFO()
+
+static
+ZEND_BEGIN_ARG_INFO(arginfo_bitset_to_hash, 0)
+	ZEND_ARG_INFO(0, bitset)
+ZEND_END_ARG_INFO()
+
+static
+ZEND_BEGIN_ARG_INFO(arginfo_bitset_from_hash, 0)
+	ZEND_ARG_INFO(0, bit_array)
+ZEND_END_ARG_INFO()
+
+static
+ZEND_BEGIN_ARG_INFO(arginfo_bitset_to_array, 0)
+	ZEND_ARG_INFO(0, bitset)
+ZEND_END_ARG_INFO()
+
+static
+ZEND_BEGIN_ARG_INFO(arginfo_bitset_from_array, 0)
+	ZEND_ARG_INFO(0, bit_array)
+ZEND_END_ARG_INFO()
+
+static
+ZEND_BEGIN_ARG_INFO(arginfo_bitset_is_empty, 0)
+	ZEND_ARG_INFO(0, bitset)
+ZEND_END_ARG_INFO()
+
 /* }}} */
-#endif
 
 /* {{{ bitset_functions[]
  */
 function_entry bitset_functions[] = {
-	PHP_FE(bitset_empty, NULL)
-	PHP_FE(bitset_incl, first_arg_force_ref)
-	PHP_FE(bitset_excl, first_arg_force_ref)
-	PHP_FE(bitset_in, NULL)
-	PHP_FE(bitset_fill, NULL)
-	PHP_FE(bitset_intersection, NULL)
-	PHP_FE(bitset_union, NULL)
-	PHP_FE(bitset_invert, NULL)
-	PHP_FE(bitset_subset, NULL)
-	PHP_FE(bitset_equal, NULL)
-	PHP_FE(bitset_to_string, NULL)
-	PHP_FE(bitset_from_string, NULL)
-	PHP_FE(bitset_to_hash, NULL)
-	PHP_FE(bitset_from_hash, NULL)
-	PHP_FE(bitset_to_array, NULL)
-	PHP_FE(bitset_from_array, NULL)
-	PHP_FE(bitset_is_empty, NULL)
-	{NULL, NULL, NULL}	/* Must be the last line in bitset_functions[] */
+	PHP_FE(bitset_empty, arginfo_bitset_empty)
+	PHP_FE(bitset_incl, arginfo_bitset_incl)
+	PHP_FE(bitset_excl, arginfo_bitset_excl)
+	PHP_FE(bitset_in, arginfo_bitset_in)
+	PHP_FE(bitset_fill, arginfo_bitset_fill)
+	PHP_FE(bitset_intersection, arginfo_bitset_intersection)
+	PHP_FE(bitset_union, arginfo_bitset_union)
+	PHP_FE(bitset_invert, arginfo_bitset_invert)
+	PHP_FE(bitset_subset, arginfo_bitset_subset)
+	PHP_FE(bitset_equal, arginfo_bitset_equal)
+	PHP_FE(bitset_to_string, arginfo_bitset_to_string)
+	PHP_FE(bitset_from_string, arginfo_bitset_from_string)
+	PHP_FE(bitset_to_hash, arginfo_bitset_to_hash)
+	PHP_FE(bitset_from_hash, arginfo_bitset_from_hash)
+	PHP_FE(bitset_to_array, arginfo_bitset_to_array)
+	PHP_FE(bitset_from_array, arginfo_bitset_from_array)
+	PHP_FE(bitset_is_empty, arginfo_bitset_is_empty)
+	{NULL, NULL, NULL}
 };
 /* }}} */
 
@@ -271,7 +358,7 @@ PHP_FUNCTION(bitset_intersection)
 		return;
 	}
 
-	if ((len1 == 0)||(len2 == 0)) {
+	if (len1 == 0 || len2 == 0) {
 		RETURN_EMPTY_STRING();
 	} else {
 		len = (len1 < len2) ? len1 : len2;
@@ -306,7 +393,7 @@ PHP_FUNCTION(bitset_union)
 		return;
 	}
 
-	if ((len1 == 0)&&(len2 == 0)) {
+	if (len1 == 0 && len2 == 0) {
 		RETURN_EMPTY_STRING();
 	} else {
 		if (len1 == len2) {
@@ -410,7 +497,7 @@ PHP_FUNCTION(bitset_subset)
 	} else if (len1 < len2) { /* We should check, that the rest of bitset2 is empty */
 
 		/* first step up to the "long" boundary  should be done here */
-		for (count=len1; (count % sizeof(unsigned long))&&(count < len2); count++)
+		for (count=len1; (count % sizeof(unsigned long)) && (count < len2); count++)
 			if (bitset_data2[count])
 				RETURN_FALSE;
 
