@@ -807,7 +807,7 @@ static int arrval_compare(const void *a, const void *b TSRMLS_DC)
 	result = Z_LVAL_P(fval) - Z_LVAL_P(sval);
 
 	if (fneed_destroy) {
-		zval_dtor(sval);
+		zval_dtor(fval);
 	}
 	if (sneed_destroy) {
 		zval_dtor(sval);
