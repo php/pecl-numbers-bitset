@@ -150,9 +150,7 @@ function_entry bitset_functions[] = {
 /* {{{ bitset_module_entry
  */
 zend_module_entry bitset_module_entry = {
-#if ZEND_MODULE_API_NO >= 20010901
 	STANDARD_MODULE_HEADER,
-#endif
 	"bitset",
 	bitset_functions,
 	NULL,
@@ -160,9 +158,7 @@ zend_module_entry bitset_module_entry = {
 	NULL,
 	NULL,
 	PHP_MINFO(bitset),
-#if ZEND_MODULE_API_NO >= 20010901
-	PHP_BITSET_VERSION, /* Extension version number */
-#endif
+	PHP_BITSET_VERSION,
 	STANDARD_MODULE_PROPERTIES
 };
 /* }}} */
@@ -784,36 +780,32 @@ PHP_FUNCTION(bitset_to_array)
 static int arrval_compare(const void *a, const void *b TSRMLS_DC)
 {
 	Bucket *f, *s;
-	zval *fval, *sval;
-	int result;
-	unsigned char fneed_destroy = 0, sneed_destroy = 0;
+	zval **fval, **sval;
+	long first = 0, second = 0;
 
 	f = *((Bucket **) a);
 	s = *((Bucket **) b);
- 	fval = *((zval **) f->pData);
-	sval = *((zval **) s->pData);
+ 	fval = ((zval **) f->pData);
+	sval = ((zval **) s->pData);
 
-	if (Z_TYPE_P(fval) != IS_LONG) {
-		fneed_destroy = 1;
-		zval_copy_ctor(fval);
-		convert_to_long(fval);
-	}
-	if (Z_TYPE_P(sval) != IS_LONG) {
-		sneed_destroy = 1;
-		zval_copy_ctor(sval);
-		convert_to_long(sval);
+
+	if (Z_TYPE_PP(fval) != IS_LONG) {
+		SEPARATE_ZVAL(fval);
+		convert_to_long_ex(fval);
+		first = Z_LVAL_PP(fval);
+	} else {
+		first = Z_LVAL_PP(fval);
 	}
 
-	result = Z_LVAL_P(fval) - Z_LVAL_P(sval);
-
-	if (fneed_destroy) {
-		zval_dtor(fval);
-	}
-	if (sneed_destroy) {
-		zval_dtor(sval);
+	if (Z_TYPE_PP(sval) != IS_LONG) {
+		SEPARATE_ZVAL(sval);
+		convert_to_long_ex(sval);
+		second = Z_LVAL_PP(sval);
+	} else {
+		second = Z_LVAL_PP(sval);
 	}
 	
-	return result;
+	return first - second;
 }
 
 /* {{{ proto string bitset_from_array(array bit_array)
@@ -824,7 +816,7 @@ PHP_FUNCTION(bitset_from_array)
 	unsigned char *bitset_data;
 	zval *bit_arr;
 	zval **arr_val;
-	unsigned char need_destroy;
+	int need_destroy = 1;
 
 	HashPosition   pos;
 	long max_val = -1;
