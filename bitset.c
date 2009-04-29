@@ -2,12 +2,12 @@
   +----------------------------------------------------------------------+
   | PHP Version 5                                                        |
   +----------------------------------------------------------------------+
-  | Copyright (c) 1997-2005 The PHP Group                                |
+  | Copyright (c) 1997-2009 The PHP Group                                |
   +----------------------------------------------------------------------+
-  | This source file is subject to version 3.0 of the PHP license,       |
+  | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
   | available through the world-wide-web at the following url:           |
-  | http://www.php.net/license/3_0.txt.                                  |
+  | http://www.php.net/license/3_01.txt.                                 |
   | If you did not receive a copy of the PHP license and are unable to   |
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
@@ -191,7 +191,7 @@ PHP_FUNCTION(bitset_empty)
 	}
 
 	if (bits < 0) {
-		zend_error(E_WARNING, "First argument is not non-negative integer.");
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "First argument must be a positive integer");
 		return;
 	}
 
@@ -221,7 +221,7 @@ PHP_FUNCTION(bitset_incl)
 	}
 	
 	if (bit < 0) {
-		zend_error(E_WARNING, "Second argument is not non-negative integer.");
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Second argument must be a positive integer");
 		return;
 	}
 
@@ -247,7 +247,7 @@ PHP_FUNCTION(bitset_incl)
 		}
 		bitset_data[bit/CHAR_BIT]  |=  1 << (bit % CHAR_BIT);
 	} else {
-		zend_error(E_WARNING, "The first argument is not a bitset");
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "First argument is not a bitset");
 	}
 }
 /* }}} */
@@ -266,7 +266,7 @@ PHP_FUNCTION(bitset_excl)
 	}
 	
 	if (bit < 0) {
-		zend_error(E_WARNING, "Second argument is not non-negative integer.");
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Second argument must be a positive integer");
 		return;
 	}
 
@@ -277,7 +277,7 @@ PHP_FUNCTION(bitset_excl)
 			bitset_data[bit/CHAR_BIT]  &=  ~(1 << (bit % CHAR_BIT));
 		}
 	} else {
-		zend_error(E_WARNING, "The first argument is not a bitset");
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "First argument is not a bitset");
 	}
 }
 /* }}} */
@@ -322,7 +322,7 @@ PHP_FUNCTION(bitset_fill)
 	}
 
 	if (bits < 0) {
-		zend_error(E_WARNING, "First argument is not non-negative integer.");
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "First argument must be a positive integer");
 		RETURN_EMPTY_STRING();
 	} else if (bits == 0) {
 		RETURN_EMPTY_STRING();
@@ -439,7 +439,7 @@ PHP_FUNCTION(bitset_invert)
 	}
 	
 	if (size < 0) {
-		zend_error(E_WARNING, "First argument is not non-negative integer.");
+		php_error_docref(NULL TSRMLS_CC, E_WARNING, "First argument must be a positive integer");
 		RETURN_EMPTY_STRING();
 	} else if (size == 0) {
 		RETURN_EMPTY_STRING();
