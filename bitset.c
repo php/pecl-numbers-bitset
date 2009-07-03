@@ -27,96 +27,102 @@
 #include "ext/standard/info.h"
 #include "php_bitset.h"
 
+#if (PHP_MAJOR_VERSION >= 6 || (PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION >= 3))
+# define PHP_BITSET_ARGINFO
+#else
+# define PHP_BITSET_ARGINFO static
+#endif
+
 /* {{{ arginfo */
-static
+PHP_BITSET_ARGINFO
 ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_empty, 0, 0, 0)
 	ZEND_ARG_INFO(0, bitcount)
 ZEND_END_ARG_INFO()
 
-static
+PHP_BITSET_ARGINFO
 ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_incl, 0, 0, 2)
 	ZEND_ARG_INFO(1, bitset)
 	ZEND_ARG_INFO(0, bit)
 ZEND_END_ARG_INFO()
 
-static
+PHP_BITSET_ARGINFO
 ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_excl, 0, 0, 2)
 	ZEND_ARG_INFO(1, bitset)
 	ZEND_ARG_INFO(0, bit)
 ZEND_END_ARG_INFO()
 
-static
+PHP_BITSET_ARGINFO
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_in, 0)
 	ZEND_ARG_INFO(0, bitset)
 	ZEND_ARG_INFO(0, bit)
 ZEND_END_ARG_INFO()
 
-static
+PHP_BITSET_ARGINFO
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_fill, 0)
 	ZEND_ARG_INFO(0, bitcount)
 ZEND_END_ARG_INFO()
 
-static
+PHP_BITSET_ARGINFO
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_intersection, 0)
 	ZEND_ARG_INFO(0, bitset1)
 	ZEND_ARG_INFO(0, bitset2)
 ZEND_END_ARG_INFO()
 
-static
+PHP_BITSET_ARGINFO
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_union, 0)
 	ZEND_ARG_INFO(0, bitset1)
 	ZEND_ARG_INFO(0, bitset2)
 ZEND_END_ARG_INFO()
 
-static
+PHP_BITSET_ARGINFO
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_invert, 0)
 	ZEND_ARG_INFO(0, bitset)
 	ZEND_ARG_INFO(0, size)
 ZEND_END_ARG_INFO()
 
-static
+PHP_BITSET_ARGINFO
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_subset, 0)
 	ZEND_ARG_INFO(0, bitset1)
 	ZEND_ARG_INFO(0, bitset2)
 ZEND_END_ARG_INFO()
 
-static
+PHP_BITSET_ARGINFO
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_equal, 0)
 	ZEND_ARG_INFO(0, bitset1)
 	ZEND_ARG_INFO(0, bitset2)
 ZEND_END_ARG_INFO()
 
-static
+PHP_BITSET_ARGINFO
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_to_string, 0)
 	ZEND_ARG_INFO(0, bitset)
 ZEND_END_ARG_INFO()
 
-static
+PHP_BITSET_ARGINFO
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_from_string, 0)
 	ZEND_ARG_INFO(0, source_str)
 ZEND_END_ARG_INFO()
 
-static
+PHP_BITSET_ARGINFO
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_to_hash, 0)
 	ZEND_ARG_INFO(0, bitset)
 ZEND_END_ARG_INFO()
 
-static
+PHP_BITSET_ARGINFO
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_from_hash, 0)
 	ZEND_ARG_INFO(0, bit_array)
 ZEND_END_ARG_INFO()
 
-static
+PHP_BITSET_ARGINFO
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_to_array, 0)
 	ZEND_ARG_INFO(0, bitset)
 ZEND_END_ARG_INFO()
 
-static
+PHP_BITSET_ARGINFO
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_from_array, 0)
 	ZEND_ARG_INFO(0, bit_array)
 ZEND_END_ARG_INFO()
 
-static
+PHP_BITSET_ARGINFO
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_is_empty, 0)
 	ZEND_ARG_INFO(0, bitset)
 ZEND_END_ARG_INFO()
