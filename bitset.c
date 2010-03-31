@@ -131,7 +131,7 @@ ZEND_END_ARG_INFO()
 
 /* {{{ bitset_functions[]
  */
-function_entry bitset_functions[] = {
+zend_function_entry bitset_functions[] = {
 	PHP_FE(bitset_empty, arginfo_bitset_empty)
 	PHP_FE(bitset_incl, arginfo_bitset_incl)
 	PHP_FE(bitset_excl, arginfo_bitset_excl)
