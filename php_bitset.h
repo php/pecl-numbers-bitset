@@ -24,7 +24,7 @@
 extern zend_module_entry bitset_module_entry;
 #define phpext_bitset_ptr &bitset_module_entry
 
-#define PHP_BITSET_VERSION "1.0.1-dev"
+#define PHP_BITSET_VERSION "1.0.1"
 
 
 #ifdef ZTS
