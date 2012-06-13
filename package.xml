@@ -26,7 +26,7 @@ http://pear.php.net/dtd/package-2.0.xsd">
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-First official stable release of Bitset
+ - Fixed build in PHP 5.3+
  </notes>
  <contents>
   <dir name="/">
@@ -73,21 +73,6 @@ First official stable release of Bitset
  <providesextension>bitset</providesextension>
  <extsrcrelease />
  <changelog>
-  <release>
-   <version>
-    <release>1.0</release>
-    <api>1.0</api>
-   </version>
-   <stability>
-    <release>stable</release>
-    <api>stable</api>
-   </stability>
-   <date>2009-11-05</date>
-   <license uri="http://www.php.net/license">PHP</license>
-   <notes>
-First official stable release of Bitset
-   </notes>
-  </release>
   <release>
    <version>
     <release>1.0</release>
