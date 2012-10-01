@@ -44,7 +44,7 @@ static const zend_module_dep bitset_deps[] = {
 zend_module_entry bitset_module_entry = {
 #if ZEND_MODULE_API_NO >= 20050617
     STANDARD_MODULE_HEADER_EX, NULL,
-    bitset_deps,
+    NULL,
 #elif ZEND_MODULE_API_NO >= 20010901
     STANDARD_MODULE_HEADER,
 #endif
@@ -61,7 +61,7 @@ zend_module_entry bitset_module_entry = {
     STANDARD_MODULE_PROPERTIES
 };
 
-#ifdef COMPILE_DL_XSL
+#ifdef COMPILE_DL_BITSET
 ZEND_GET_MODULE(bitset)
 #endif
 /* {{{ Arginfo */
@@ -378,9 +378,8 @@ PHP_MINIT_FUNCTION(bitset)
     memcpy(&bitset_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 
 	INIT_CLASS_ENTRY(ce, "BitSet", bitset_class_method_entry);
-    ce.create_object = bitset_objects_new;
+    ce.create_object = php_bitset_objects_new;
 	bitset_class_entry = zend_register_internal_class(&ce TSRMLS_CC);
-	
 	return SUCCESS;
 }
 /* }}} */
