@@ -25,7 +25,7 @@
 #define phpext_bitset_ptr &bitset_module_entry
 extern zend_module_entry bitset_module_entry;
 
-#define PHP_BITSET_VERSION "2.0"
+#define PHP_BITSET_VERSION "2.0-dev"
 
 #ifdef PHP_WIN32
 #define PHP_BITSET_API __declspec(dllexport)
@@ -40,7 +40,8 @@ extern zend_module_entry bitset_module_entry;
 typedef struct {
     zend_object zo;
     zend_object_handle handle;
-    unsigned long long bitset_val;
+	unsigned char *bitset_val;
+	unsigned long bitset_len;
 } php_bitset_object;
 
 PHP_MINIT_FUNCTION(bitset);

@@ -9,10 +9,15 @@ http://pear.php.net/dtd/package-2.0.xsd">
  <description>Sets of bits manipuliting library
  </description>
  <lead>
+  <name>Will Fitch</name>
+  <user>willfitch</user>
+  <email>willfitch@php.net</email>
+  <active>yes</active>
+ <lead>
   <name>Alexander Veremyev</name>
   <user>cawa</user>
   <email>cawa@php.net</email>
-  <active>yes</active>
+  <active>no</active>
  </lead>
  <date>2012-06-13</date>
  <time>09:24:00</time>

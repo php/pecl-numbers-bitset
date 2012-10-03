@@ -9,6 +9,7 @@ config.h*
 config.log
 config.guess
 config.nice
+config.status
 missing
 ltmain*
 install-sh
@@ -22,3 +23,5 @@ libtool
 .deps
 *.la
 modules
+run-tests.php
+

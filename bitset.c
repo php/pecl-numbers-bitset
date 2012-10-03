@@ -13,7 +13,7 @@
     | license@php.net so we can mail you a copy immediately.               |
     +----------------------------------------------------------------------+
     | Authors: Will Fitch <willfitch@php.net>                              |
-    |          Alexander Veremyev <cawa@csa.ru> 		                   |
+    |          Alexander Veremyev <cawa@csa.ru>                            |
     +----------------------------------------------------------------------+
 
     $Id$
@@ -25,8 +25,11 @@
 
 #include "php.h"
 #include "php_ini.h"
+#include "zend_exceptions.h"
+#include "ext/spl/spl_exceptions.h"
 #include "ext/standard/info.h"
 #include "php_bitset.h"
+#include <limits.h>
 
 zend_class_entry *bitset_class_entry = NULL;
 static zend_object_handlers bitset_object_handlers;
@@ -65,7 +68,8 @@ zend_module_entry bitset_module_entry = {
 ZEND_GET_MODULE(bitset)
 #endif
 /* {{{ Arginfo */
-ZEND_BEGIN_ARG_INFO(arginfo_bitset___construct, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset___construct, 0, 0, 1)
+    ZEND_ARG_INFO(0, value)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_andop, 0)
@@ -86,7 +90,8 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_fromarray, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_get, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_get, 0, 0, 1)
+    ZEND_ARG_INFO(0, index)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_hashcode, 0)
@@ -133,13 +138,49 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO(arginfo_bitset___tostring, 0)
 ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO(arginfo_bitset_getrawvalue, 0)
+ZEND_END_ARG_INFO()
 /* }}} */
+
+#define BITSET_BIT_ISSET(var, index) ((var) & (1 << (index)))
 
 /* {{{ proto void BitSet::__construct(int value)
    Class constructor */
 PHP_METHOD(BitSet, __construct)
 {
-    RETURN_FALSE;
+    zval *id;
+    php_bitset_object *intern = NULL;
+    long len = 0, bits = 0;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|l", &bits) == FAILURE) {
+        return;
+    }
+
+    id = getThis();
+    intern = (php_bitset_object *) zend_object_store_get_object(id TSRMLS_CC);
+
+    /* Default the bit count to 64 bits */
+    if (bits == 0) {
+        bits = 64;
+    } else if (bits < 0) {
+        /* Bits can't be negative */
+        zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0 TSRMLS_CC,
+                                "The total bits to allocate must be 0 or greater");
+        return;
+    }
+
+
+    len = (bits + CHAR_BIT - 1) / CHAR_BIT;
+    intern->bitset_val = (unsigned char *) emalloc(len + 1);
+    memset(intern->bitset_val, ~0, len);
+    intern->bitset_val[len] = '\0';
+
+    if (bits % CHAR_BIT) {
+        intern->bitset_val[len - 1] >>= (CHAR_BIT - (bits % CHAR_BIT));
+    }
+
+    intern->bitset_len = len;
 }
 /* }}} */
 
@@ -171,7 +212,35 @@ PHP_METHOD(BitSet, cardinality)
    Sets all bits to false */
 PHP_METHOD(BitSet, clear)
 {
-    RETURN_FALSE;
+    zval *object;
+    php_bitset_object *intern;
+    long index_from = 0, index_to = 0, usable_index = 0;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|ll", &index_from, &index_to) == FAILURE) {
+        return;
+    }
+
+    object = getThis();
+    intern = (php_bitset_object *) zend_object_store_get_object(object TSRMLS_CC);
+
+    /* Verify the start index is not greater than total bits */
+    if (index_from > intern->bitset_len) {
+        zend_throw_exception_ex(spl_ce_OutOfRangeException, 0 TSRMLS_CC,
+                                "The requested start index is greater than the total number of bits");
+        return;
+    }
+
+    /* Clear all bits and reset */
+    if (index_from == 0 && index_to == 0) {
+        memset(intern->bitset_val, 0, intern->bitset_len);
+        intern->bitset_val[intern->bitset_len] = '\0';
+    } else {
+        usable_index = index_to > intern->bitset_len * CHAR_BIT ? intern->bitset_len * CHAR_BIT : index_to;
+
+        for (; index_from <= usable_index; index_from++) {
+            intern->bitset_val[index_from / CHAR_BIT] &= ~(1 << (index_from % CHAR_BIT));
+        }
+    }
 }
 /* }}} */
 
@@ -179,7 +248,23 @@ PHP_METHOD(BitSet, clear)
    Returns the bool value of the bit at the specified index */
 PHP_METHOD(BitSet, get)
 {
-    RETURN_FALSE;
+}
+/* }}} */
+
+/* {{{ proto string BitSet::getRawValue(void)
+ */
+PHP_METHOD(BitSet, getRawValue)
+{
+    zval *id = getThis();
+    php_bitset_object *intern;
+
+    intern = (php_bitset_object *) zend_object_store_get_object(id TSRMLS_CC);
+
+    if (intern->bitset_val) {
+        RETURN_STRINGL((char *) intern->bitset_val, intern->bitset_len, 1);
+    } else {
+        RETURN_EMPTY_STRING();
+    }
 }
 /* }}} */
 
@@ -203,7 +288,28 @@ PHP_METHOD(BitSet, intersects)
    Determines if this value contains no bits */
 PHP_METHOD(BitSet, isEmpty)
 {
-    RETURN_FALSE;
+    zval *object;
+    php_bitset_object *intern;
+    long total_bits = 0, i = 0;
+    short has_true_bits = 0;
+
+    object = getThis();
+    intern = (php_bitset_object *) zend_object_store_get_object(object TSRMLS_CC);
+    total_bits = intern->bitset_len * CHAR_BIT;
+
+    /* Loop through all bits and determine if there is a true bit. */
+    for (; i < total_bits; i++) {
+        if (intern->bitset_val[i / CHAR_BIT] & (1 << i % CHAR_BIT)) {
+            has_true_bits = 1;
+            break;
+        }
+    }
+
+    if (has_true_bits) {
+        RETURN_FALSE;
+    } else {
+        RETURN_TRUE;
+    }
 }
 /* }}} */
 
@@ -255,11 +361,38 @@ PHP_METHOD(BitSet, previousSetBit)
 }
 /* }}} */
 
-/* {{{ proto void BitSet::set(int index, bool value)
-   Sets the bit at the provided index to the specified boolean value */
+/* {{{ proto void BitSet::set([int indexOrFromIndex[, toIndex]])
+   Sets the bits from the specified index or range to true
+ */
 PHP_METHOD(BitSet, set)
 {
-    RETURN_FALSE;
+    zval *object;
+    php_bitset_object *intern;
+    long index_from = 0, index_to = 0, usable_index = 0;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|ll", &index_from, &index_to) == FAILURE) {
+        return;
+    }
+
+    object = getThis();
+    intern = (php_bitset_object *) zend_object_store_get_object(object TSRMLS_CC);
+
+    if (index_from > intern->bitset_len) {
+        zend_throw_exception_ex(spl_ce_OutOfRangeException, 0 TSRMLS_CC,
+                                "The requested start index is greater than the total number of bits");
+        return;
+    }
+
+    if (index_from == 0 && index_to == 0) {
+        memset(intern->bitset_val, 1, intern->bitset_len);
+        intern->bitset_val[intern->bitset_len] = '\0';
+    } else {
+        usable_index = index_to > intern->bitset_len * CHAR_BIT ? intern->bitset_len * CHAR_BIT : index_to;
+
+        for (; index_from <= usable_index; index_from++) {
+            intern->bitset_val[index_from / CHAR_BIT] |= (1 << (index_from / CHAR_BIT));
+        }
+    }
 }
 /* }}} */
 
@@ -279,7 +412,8 @@ PHP_METHOD(BitSet, size)
 }
 /* }}} */
 
-/* {{{ */
+/* {{{ proto array BitSet::fromArray(array inputArray)
+ */
 PHP_METHOD(BitSet, fromArray)
 {
     RETURN_FALSE;
@@ -306,81 +440,116 @@ PHP_METHOD(BitSet, xorOp)
    Returns a human-readable string representation of the bit set */
 PHP_METHOD(BitSet, __toString)
 {
-    RETURN_FALSE;
+    zval *object = getThis();
+    php_bitset_object *intern = NULL;
+    unsigned char *retval = NULL;
+    long len, i;
+
+    intern = (php_bitset_object *) zend_object_store_get_object(object TSRMLS_CC);
+
+    if (intern->bitset_len == 0) {
+        RETURN_EMPTY_STRING();
+    } else {
+        len = intern->bitset_len * CHAR_BIT;
+        retval = (unsigned char *) emalloc(len + 1);
+        retval[len] = '\0';
+
+        for (i = 0; i < len; i++) {
+            retval[i] = ((intern->bitset_val[i / CHAR_BIT] >> (i % CHAR_BIT)) & 1) ? '1' : '0';
+        }
+
+        RETURN_STRINGL((char *)retval, len, 0);
+    }
 }
 /* }}} */
 
 /* {{{ arginfo assignments */
 static const zend_function_entry bitset_class_method_entry[] = {
+    PHP_ME(BitSet, __construct, arginfo_bitset___construct, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, andOp, arginfo_bitset_andop, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, andNotOp, arginfo_bitset_andnotop, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, cardinality, arginfo_bitset_cardinality, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, clear, arginfo_bitset_clear, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, fromArray, arginfo_bitset_fromarray, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, get, arginfo_bitset_get, ZEND_ACC_PUBLIC)
+    PHP_ME(BitSet, getRawValue, arginfo_bitset_getrawvalue, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, hashCode, arginfo_bitset_hashcode, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, intersects, arginfo_bitset_intersects, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, isEmpty, arginfo_bitset_isempty, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, length, arginfo_bitset_length, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, nextClearBit, arginfo_bitset_nextclearbit, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, nextSetBit, arginfo_bitset_nextsetbit, ZEND_ACC_PUBLIC)
+    PHP_ME(BitSet, nextSetBit, arginfo_bitset_nextsetbit, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, orOp, arginfo_bitset_orop, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, previousClearBit, arginfo_bitset_previousclearbit, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, previousSetBit, arginfo_bitset_previoussetbit, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, set, arginfo_bitset_set, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, setRange, arginfo_bitset_setrange, ZEND_ACC_PUBLIC)
+    PHP_ME(BitSet, setRange, arginfo_bitset_setrange, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, size, arginfo_bitset_size, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, toArray, arginfo_bitset_toarray, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, xorOp, arginfo_bitset_xorop, ZEND_ACC_PUBLIC)
     PHP_ME(BitSet, __toString, arginfo_bitset___tostring, ZEND_ACC_PUBLIC)
-	PHP_FE_END
+    PHP_FE_END
 };
 /* }}} */
 
-
-void bitset_objects_free_storage(void *object TSRMLS_DC)
+/* {{{ void bitset_objects_free_storage
+ */
+static void bitset_objects_free_storage(void *object TSRMLS_DC)
 {
     php_bitset_object *intern = (php_bitset_object *) object;
     zend_object_std_dtor(&intern->zo TSRMLS_CC);
+
+    if (intern->bitset_val) {
+        efree(intern->bitset_val);
+    }
+
     efree(object);
 }
+/* }}} */
 
+/* {{{ zend_object_value php_bitset_objects_new
+ */
 static zend_object_value php_bitset_objects_new(zend_class_entry *ce TSRMLS_DC)
 {
     zend_object_value retval;
     php_bitset_object *intern;
 
     intern = emalloc(sizeof(php_bitset_object));
+    memset(&intern->zo, 0, sizeof(zend_object));
     intern->bitset_val = 0;
 
     zend_object_std_init(&intern->zo, ce TSRMLS_CC);
-    retval.handle = zend_objects_store_put(intern, (zend_objects_store_dtor_t)zend_objects_destroy_object, (zend_objects_free_object_storage_t) bitset_objects_free_storage, NULL TSRMLS_CC);
+    object_properties_init(&intern->zo, ce);
+
+    retval.handle = zend_objects_store_put(intern, (zend_objects_store_dtor_t) zend_objects_destroy_object,  bitset_objects_free_storage, NULL TSRMLS_CC);
     intern->handle = retval.handle;
     retval.handlers = &bitset_object_handlers;
     return retval;
 }
+/* }}} */
 
 /* {{{ PHP_MINFO_FUNCTION */
 PHP_MINFO_FUNCTION(bitset)
 {
-	php_info_print_table_start();
-	php_info_print_table_header(2, "BitSet Support", "enabled");
-	php_info_print_table_row(2, "BitSet Version", PHP_BITSET_VERSION);
-	php_info_print_table_end();
-	DISPLAY_INI_ENTRIES();
+    php_info_print_table_start();
+    php_info_print_table_header(2, "BitSet Support", "enabled");
+    php_info_print_table_row(2, "BitSet Version", PHP_BITSET_VERSION);
+    php_info_print_table_row(2, "64-bit Integer Support", sizeof(unsigned long long) == 8 ? "yes" : "no");
+    php_info_print_table_end();
+    DISPLAY_INI_ENTRIES();
 }
 /* }}} */
 
 /* {{{ PHP_MINIT_FUNCTION */
 PHP_MINIT_FUNCTION(bitset)
 {
-	zend_class_entry ce;
+    zend_class_entry ce;
     memcpy(&bitset_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
 
-	INIT_CLASS_ENTRY(ce, "BitSet", bitset_class_method_entry);
+    INIT_CLASS_ENTRY(ce, "BitSet", bitset_class_method_entry);
     ce.create_object = php_bitset_objects_new;
-	bitset_class_entry = zend_register_internal_class(&ce TSRMLS_CC);
-	return SUCCESS;
+    bitset_class_entry = zend_register_internal_class(&ce TSRMLS_CC);
+    return SUCCESS;
 }
 /* }}} */
 
