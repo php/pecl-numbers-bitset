@@ -37,6 +37,8 @@ extern zend_module_entry bitset_module_entry;
 #include "TSRM.h"
 #endif
 
+#define BITSET_DEFAULT_BITS 64
+
 typedef struct {
     zend_object zo;
     zend_object_handle handle;
@@ -47,6 +49,24 @@ typedef struct {
 PHP_MINIT_FUNCTION(bitset);
 PHP_MSHUTDOWN_FUNCTION(bitset);
 PHP_MINFO_FUNCTION(bitset);
+
+PHP_FUNCTION(bitset_empty);
+PHP_FUNCTION(bitset_incl);
+PHP_FUNCTION(bitset_excl);
+PHP_FUNCTION(bitset_in);
+PHP_FUNCTION(bitset_fill);
+PHP_FUNCTION(bitset_intersection);
+PHP_FUNCTION(bitset_union);
+PHP_FUNCTION(bitset_invert);
+PHP_FUNCTION(bitset_subset);
+PHP_FUNCTION(bitset_equal);
+PHP_FUNCTION(bitset_to_string);
+PHP_FUNCTION(bitset_from_string);
+PHP_FUNCTION(bitset_to_hash);
+PHP_FUNCTION(bitset_from_hash);
+PHP_FUNCTION(bitset_to_array);
+PHP_FUNCTION(bitset_from_array);
+PHP_FUNCTION(bitset_is_empty);
 
 #endif
 
