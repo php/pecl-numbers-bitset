@@ -13,6 +13,7 @@
 	| license@php.net so we can mail you a copy immediately.               |
 	+----------------------------------------------------------------------+
 	| Authors: Will Fitch <willfitch@php.net>                              |
+	|          Alexander Veremyev <cawa@csa.ru>                            |
 	+----------------------------------------------------------------------+
 
 	$Id$

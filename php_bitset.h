@@ -40,8 +40,8 @@ extern zend_module_entry bitset_module_entry;
 #define BITSET_DEFAULT_BITS 64
 
 typedef struct {
-    zend_object zo;
-    zend_object_handle handle;
+	zend_object zo;
+	zend_object_handle handle;
 	unsigned char *bitset_val;
 	unsigned long bitset_len;
 } php_bitset_object;
