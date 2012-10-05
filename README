@@ -1,33 +1,28 @@
 BITSET
-Released under the PHP License 3.0
+Released under the PHP License 3.01
 
+The BitSet library assists by providing a mechanism to manage sets of bits. This 
+provides a similar API (object-based) to java.util.BitSet with some PHP-specific 
+flavoring. 
 
-This extension is a library for managing sets of bits in terms of Set Theory.
-By development the greatest attention has been given to performance.
+The original functions provide under 1.0 are still available, though are planned to
+be deprecated in 2.1 and removed in 2.2.
 
+IMPORTANT
+---------
+Versions 2.0 and higher of this extension require PHP 5.3+
 
 COMPILATION
 -----------
-
-To compile the extension in your PHP, do as follows:
 
 - Uncompress the tarball
 - Run phpize
 - Run ./configure [--enable-bitset]
 - Run make, then make install.
-- Either load the extension dynamically into your scripts (with dl()) or add
-  an extension= entry for it in your php.ini
-
-
-USAGE
------
-
-PHP scripts in the tests diectory cover extension functionality complitely 
-and can be used as an example of lybrary's usage
-
+- Add the extension loading directive to your php.ini
+	extension=bitset.so
 
 REPORTING BUGS
 --------------
 
-THIS EXTENSION IS EXPERIMENTAL. Please report all bugs and send all 
-request/suggestions/quips/complaints to the PECL website
+Please report all bugs to the PHP Bug system at http://bugs.php.net/.
