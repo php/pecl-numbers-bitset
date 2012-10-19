@@ -4,7 +4,7 @@ bitset_from_array
 <?php if (!extension_loaded("bitset")) print "skip"; ?>
 --FILE--
 <?php
-
+error_reporting(E_ALL ^ E_DEPRECATED);
   $bit_array = array();
   if( bitset_to_string( bitset_from_array( $bit_array ) ) == "" )
       echo "empty input - ok\n";

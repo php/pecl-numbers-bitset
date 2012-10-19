@@ -1,77 +1,97 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<package packagerversion="1.9.0" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0
-http://pear.php.net/dtd/tasks-1.0.xsd
-http://pear.php.net/dtd/package-2.0
-http://pear.php.net/dtd/package-2.0.xsd">
+<?xml version="1.0" encoding="UTF-8" ?>
+<package packagerversion="1.9.0" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>bitset</name>
  <channel>pecl.php.net</channel>
  <summary>BITSET library</summary>
- <description>Sets of bits manipuliting library
- </description>
+ <description>Bitsets manipulation library</description>
  <lead>
   <name>Will Fitch</name>
   <user>willfitch</user>
   <email>willfitch@php.net</email>
   <active>yes</active>
+ </lead>
  <lead>
   <name>Alexander Veremyev</name>
   <user>cawa</user>
   <email>cawa@php.net</email>
   <active>no</active>
  </lead>
- <date>2012-06-13</date>
- <time>09:24:00</time>
+ <date>2012-10-19</date>
+ <time>09:00:00</time>
  <version>
-  <release>1.0.1</release>
-  <api>1.0</api>
+  <release>2.0</release>
+  <api>2.0</api>
  </version>
  <stability>
-  <release>stable</release>
-  <api>stable</api>
+  <release>beta</release>
+  <api>beta</api>
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
- - Fixed build in PHP 5.3+
+ - Added new BitSet class
+ - Deprecated bitset_* functions
+ - Fixed tests with incorrect EXPECTs
+ - Removed support for PHP versions less than 5.3
  </notes>
  <contents>
   <dir name="/">
    <dir name="tests">
-    <file name="001.phpt" role="test" />
-    <file name="002.phpt" role="test" />
-    <file name="003.phpt" role="test" />
-    <file name="004.phpt" role="test" />
-    <file name="005.phpt" role="test" />
-    <file name="006.phpt" role="test" />
-    <file name="007.phpt" role="test" />
-    <file name="008.phpt" role="test" />
-    <file name="009.phpt" role="test" />
-    <file name="010.phpt" role="test" />
-    <file name="011.phpt" role="test" />
-    <file name="012.phpt" role="test" />
-    <file name="013.phpt" role="test" />
-    <file name="014.phpt" role="test" />
-    <file name="015.phpt" role="test" />
-    <file name="016.phpt" role="test" />
-    <file name="017.phpt" role="test" />
-    <file name="018.phpt" role="test" />
-   </dir> <!-- //tests -->
-   <file name="bitset.c" role="src" />
-   <file name="bitset.dsp" role="src" />
-   <file name="config.m4" role="src" />
-   <file name="config.w32" role="src" />
-   <file name="CREDITS" role="doc" />
-   <file name="EXPERIMENTAL" role="doc" />
-   <file name="php_bitset.h" role="src" />
-   <file name="README" role="doc" />
-  </dir> <!-- / -->
+    <file name="001.phpt" role="test" md5sum="374d0524e6173e4387bdc4143b1899fe" />
+    <file name="002.phpt" role="test" md5sum="4089ac829666253aa23acf82205222d6" />
+    <file name="003.phpt" role="test" md5sum="9b0dea7d4d391cd96b862730908e2acc" />
+    <file name="004.phpt" role="test" md5sum="3e22f65f50c53a79605563860af9ebe5" />
+    <file name="005.phpt" role="test" md5sum="352190bbfd7da67721eae193e24c838e" />
+    <file name="006.phpt" role="test" md5sum="369393a48c8271f64ee635e0f33c15fa" />
+    <file name="007.phpt" role="test" md5sum="9210cedc7bd5cb15779ad31aeac0de6a" />
+    <file name="008.phpt" role="test" md5sum="32973552ef46f700e9ace53581b7d230" />
+    <file name="009.phpt" role="test" md5sum="8c5ace45431078c5cf25993a86cb7a64" />
+    <file name="010.phpt" role="test" md5sum="7ef82403b53e6aafb4684ec8340ceeba" />
+    <file name="011.phpt" role="test" md5sum="ee79fc214f4070ccd95ddb0d38811686" />
+    <file name="012.phpt" role="test" md5sum="f96c2813ffd57ae9ee77bc05cbf73857" />
+    <file name="013.phpt" role="test" md5sum="15f15dc91144d45376902cd430421024" />
+    <file name="014.phpt" role="test" md5sum="cef2845c002a07fb626b27818f49e24b" />
+    <file name="015.phpt" role="test" md5sum="4c132362e5a9cffb0641b4f4ced37d2e" />
+    <file name="016.phpt" role="test" md5sum="5e9cfb1c4e79ec1de00fa4ed958e97bb" />
+    <file name="017.phpt" role="test" md5sum="e8abfc993b5a17e9cfc4af1e622ae6e4" />
+	  <file name="018.phpt" role="test" md5sum="9a2828968bac94133307642777507f75" />
+	  <file name="BitSet_andNotOp.phpt" role="test" md5sum="a9f8d38f2f16009ef252f53456b204be" />
+	  <file name="BitSet_andOp.phpt" role="test" md5sum="ddf95377091bbaca16f2c57863397fb9" />
+	  <file name="BitSet_cardinality.phpt" role="test" md5sum="917976e69b10e66519516fcbd1a87013" />
+	  <file name="BitSet_clear.phpt" role="test" md5sum="f3522e3de74683c05a4e42a65e9167e0" />
+	  <file name="BitSet_construct.phpt" role="test" md5sum="4ea98a28ab5a67e53ec893a915fea390" />
+	  <file name="BitSet_fromArray.phpt" role="test" md5sum="d95f597ff2a251dbe67209a195db0771" />
+	  <file name="BitSet_fromString.phpt" role="test" md5sum="ea1cebae746af7267caa51a005386ed6" />
+	  <file name="BitSet_get.phpt" role="test" md5sum="5a22e5849ae85de067605efa96526e9b" />
+	  <file name="BitSet_getRawValue.phpt" role="test" md5sum="3bb353af6231c11450ab221b0a7969f3" />
+	  <file name="BitSet_isEmpty.phpt" role="test" md5sum="76851860b7b010a6929e6f0482f5e40d" />
+	  <file name="BitSet_length.phpt" role="test" md5sum="fbb118aa15f9198d0c12e7a269a59381" />
+	  <file name="BitSet_nextClearBit.phpt" role="test" md5sum="60158649496e8c372772bb5e5ee13636" />
+	  <file name="BitSet_nextSetBit.phpt" role="test" md5sum="8a6c50372f183ae86143c2a5db55126f" />
+	  <file name="BitSet_orOp.phpt" role="test" md5sum="7c61f8f39da7b352f477bc1892f71f1c" />
+	  <file name="BitSet_previousClearBit.phpt" role="test" md5sum="63c2c22cadf3f3595f89a87a831a0128" />
+	  <file name="BitSet_previousSetBit.phpt" role="test" md5sum="7479ba2890f581b88eea3b5ad92c4e9e" />
+	  <file name="BitSet_set.phpt" role="test" md5sum="5da697098907f1542b176eb58398e968" />
+	  <file name="BitSet_size.phpt" role="test" md5sum="8903891b94a4f847c936e9782aba72bb" />
+	  <file name="BitSet_toArray.phpt" role="test" md5sum="71078a0628932c16939d9aa55fbdee4f" />
+	  <file name="BitSet_xorOp.phpt" role="test" md5sum="40d2638095539781afe94518a7671ae7" />
+   </dir>
+   <file name="bitset.c" role="src" md5sum="0083c818b73d9c962a4b9c2134b3c33f" />
+   <file name="bitset.dsp" role="src" md5sum="5fe65872d47a8c4cb05abfb6653c176c" />
+   <file name="config.m4" role="src" md5sum="5d66832c9fec6b1020b478c3bec1d2da" />
+   <file name="config.w32" role="src" md5sum="1d942a79faec331565a46c0e49b1c716" />
+   <file name="CREDITS" role="doc" md5sum="1ffb77b37810bc44dad7f66c3a219a76" />
+   <file name="php_bitset.h" role="src" md5sum="7610460d0d5700ab7b714f26f85f4f12" />
+   <file name="README" role="doc" md5sum="d06f0d2d6c2b2feab10f0840eeec062a" />
+   <file name="TODO" role="doc" md5sum="246a4eae1822c2a878a7ff652ca267d3" />
+  </dir>
  </contents>
  <dependencies>
   <required>
    <php>
-    <min>4.0.0</min>
+    <min>5.3.0</min>
    </php>
    <pearinstaller>
-    <min>1.4.0b1</min>
+    <min>1.4.0</min>
    </pearinstaller>
   </required>
  </dependencies>
@@ -79,19 +99,34 @@ http://pear.php.net/dtd/package-2.0.xsd">
  <extsrcrelease />
  <changelog>
   <release>
-   <version>
-    <release>1.0</release>
-    <api>1.0</api>
-   </version>
-   <stability>
-    <release>stable</release>
-    <api>stable</api>
-   </stability>
-   <date>2005-07-22</date>
-   <license uri="http://www.php.net/license">PHP</license>
-   <notes>
+	  <version>
+	    <release>1.0.1</release>
+	    <api>1.0</api>
+	  </version>
+	  <stability>
+	    <release>stable</release>
+	    <api>stable</api>
+	  </stability>
+	  <date>2012-06-13</date>
+	  <license uri="http://www.php.net/license">PHP</license>
+	  <notes>
+- Fixed build in PHP 5.3+
+    </notes>
+  </release>
+  <release>
+    <version>
+      <release>1.0</release>
+      <api>1.0</api>
+    </version>
+    <stability>
+      <release>stable</release>
+      <api>stable</api>
+    </stability>
+    <date>2005-07-22</date>
+    <license uri="http://www.php.net/license">PHP</license>
+    <notes>
 First official stable release of Bitset
-   </notes>
+    </notes>
   </release>
  </changelog>
 </package>

@@ -4,6 +4,7 @@ bitset_equal
 <?php if (!extension_loaded("bitset")) print "skip"; ?>
 --FILE--
 <?php 
+error_reporting(E_ALL ^ E_DEPRECATED);
  if( bitset_equal(bitset_empty(), bitset_empty())  )
       echo "empty input - ok\n";
 

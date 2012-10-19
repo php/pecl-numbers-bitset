@@ -4,6 +4,7 @@ bitset_fill
 <?php if (!extension_loaded("bitset")) print "skip"; ?>
 --FILE--
 <?php 
+error_reporting(E_ALL ^ E_DEPRECATED);
  if( bitset_to_string( bitset_fill(0) ) == "" )
       echo "zero input - ok\n";
 

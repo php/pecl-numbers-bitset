@@ -4,6 +4,7 @@ bitset_invert
 <?php if (!extension_loaded("bitset")) print "skip"; ?>
 --FILE--
 <?php 
+error_reporting(E_ALL ^ E_DEPRECATED);
  if( bitset_to_string(  bitset_invert(bitset_empty(), 0)   ) == ""  )
       echo "empty input, zero base invert - ok\n";
 

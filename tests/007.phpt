@@ -4,6 +4,7 @@ bitset_intersection
 <?php if (!extension_loaded("bitset")) print "skip"; ?>
 --FILE--
 <?php 
+error_reporting(E_ALL ^ E_DEPRECATED);
  if( bitset_to_string(   bitset_intersection( bitset_empty(),
                                               bitset_empty()
                                             )

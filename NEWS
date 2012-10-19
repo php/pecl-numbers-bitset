@@ -1,9 +1,0 @@
-2.0
-  - Added new BitSet class (Will Fitch)
-  - Updated old API to only be compatible with PHP 5.3+
-
-1.0.1
-  - Updated for 5.3 API (Will Fitch)
-
-1.0
-  - Initial release (Alexander Veremyev)

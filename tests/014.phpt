@@ -4,6 +4,7 @@ bitset_to_hash
 <?php if (!extension_loaded("bitset")) print "skip"; ?>
 --FILE--
 <?php 
+error_reporting(E_ALL ^ E_DEPRECATED);
  if( count(bitset_to_hash( bitset_empty() )) == 0 )
       echo "empty input - ok\n";
 

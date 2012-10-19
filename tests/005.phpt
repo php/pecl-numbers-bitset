@@ -4,6 +4,7 @@ bitset_in
 <?php if (!extension_loaded("bitset")) print "skip"; ?>
 --FILE--
 <?php 
+error_reporting(E_ALL ^ E_DEPRECATED);
  if( !bitset_in( bitset_empty(), 4 ) )
       echo "test in an empty bitset - ok\n";
 

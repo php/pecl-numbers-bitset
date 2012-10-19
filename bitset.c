@@ -1,19 +1,19 @@
 /*
 	+----------------------------------------------------------------------+
-	| PHP Version 5                                                        |
+	| PHP Version 5														   |
 	+----------------------------------------------------------------------+
-	| Copyright (c) 1997-2012 The PHP Group                                |
+	| Copyright (c) 1997-2012 The PHP Group								   |
 	+----------------------------------------------------------------------+
-	| This source file is subject to version 3.01 of the PHP license,      |
-	| that is bundled with this package in the file LICENSE, and is        |
-	| available through the world-wide-web at the following url:           |
-	| http://www.php.net/license/3_01.txt                                  |
+	| This source file is subject to version 3.01 of the PHP license,	   |
+	| that is bundled with this package in the file LICENSE, and is		   |
+	| available through the world-wide-web at the following url:		   |
+	| http://www.php.net/license/3_01.txt								   |
 	| If you did not receive a copy of the PHP license and are unable to   |
-	| obtain it through the world-wide-web, please send a note to          |
-	| license@php.net so we can mail you a copy immediately.               |
+	| obtain it through the world-wide-web, please send a note to		   |
+	| license@php.net so we can mail you a copy immediately.			   |
 	+----------------------------------------------------------------------+
-	| Authors: Will Fitch <willfitch@php.net>                              |
-	|          Alexander Veremyev <cawa@csa.ru>                            |
+	| Authors: Will Fitch <willfitch@php.net>							   |
+	|		   Alexander Veremyev <cawa@csa.ru>							   |
 	+----------------------------------------------------------------------+
 
 	$Id$
@@ -31,6 +31,8 @@
 #include "php_bitset.h"
 #include <limits.h>
 
+#define BITSET_DEPRECATED_MESSAGE "The bitset_* functions are deprecated and will be removed in 3.0. Please update to the BitSet class API"
+
 zend_class_entry *bitset_class_entry = NULL;
 static zend_object_handlers bitset_object_handlers;
 
@@ -38,6 +40,7 @@ static zend_object_value bitset_objects_new(zend_class_entry *ce TSRMLS_DC);
 static zend_object_value php_bitset_register_object(php_bitset_object *intern TSRMLS_DC);
 static php_bitset_object *bitset_get_intern_object(zval *object TSRMLS_DC);
 static php_bitset_object *php_bitset_objects_new(zend_class_entry *ce TSRMLS_DC);
+static long bitset_get_highest_value_from_array(zval *arr TSRMLS_DC);
 static void bitset_initialize_object(php_bitset_object *intern, long bits TSRMLS_DC);
 
 /* {{{ function arginfo */
@@ -136,14 +139,16 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_clear, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_fromarray, 0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_fromarray, 0, 0, 1)
+	ZEND_ARG_INFO(0, arr)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_fromstring, 0, 0, 1)
+	ZEND_ARG_INFO(0, str)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_get, 0, 0, 1)
 	ZEND_ARG_INFO(0, index)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_hashcode, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_intersects, 0)
@@ -213,6 +218,8 @@ const zend_function_entry bitset_functions[] = {
 };
 /* }}} */
 
+/* {{{ zend_module_dep zend_module_entry ZEND_GET_MODULE
+ */
 static const zend_module_dep bitset_deps[] = {
 	ZEND_MOD_END
 };
@@ -234,6 +241,7 @@ zend_module_entry bitset_module_entry = {
 #ifdef COMPILE_DL_BITSET
 ZEND_GET_MODULE(bitset)
 #endif
+/* }}} */
 
 /* {{{ proto void BitSet::__construct(int value)
    Class constructor */
@@ -243,25 +251,25 @@ PHP_METHOD(BitSet, __construct)
 	long bits = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|l", &bits) == FAILURE) {
-	    return;
+		return;
 	}
 
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
 
 	/* Default the bit count to 64 bits */
 	if (bits == 0) {
-	    bits = BITSET_DEFAULT_BITS;
+		bits = BITSET_DEFAULT_BITS;
 	} else if (bits < 0) {
-	    /* Bits can't be negative */
-	    zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0 TSRMLS_CC,
-	                            "The total bits to allocate must be 0 or greater");
-	    return;
+		/* Bits can't be negative */
+		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0 TSRMLS_CC,
+								"The total bits to allocate must be 0 or greater");
+		return;
 	}
 
 	bitset_initialize_object(intern, bits TSRMLS_CC);
 
 	if (bits % CHAR_BIT) {
-	    intern->bitset_val[intern->bitset_len - 1] >>= (CHAR_BIT - (bits % CHAR_BIT));
+		intern->bitset_val[intern->bitset_len - 1] >>= (CHAR_BIT - (bits % CHAR_BIT));
 	}
 }
 /* }}} */
@@ -270,7 +278,23 @@ PHP_METHOD(BitSet, __construct)
    Performs a logical AND of target bit set with provided object */
 PHP_METHOD(BitSet, andOp)
 {
-	RETURN_FALSE;
+	php_bitset_object *intern, *param;
+	zval *param_id;
+	long bitset_len1 = 0, bitset_len2 = 0, i = 0, to_bits = 0;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &param_id, bitset_class_entry) == FAILURE) {
+		return;
+	}
+
+	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
+	param = bitset_get_intern_object(param_id TSRMLS_CC);
+	bitset_len1 = intern->bitset_len * CHAR_BIT;
+	bitset_len2 = param->bitset_len * CHAR_BIT;
+	to_bits = bitset_len1 > bitset_len2 ? bitset_len2 : bitset_len1;
+
+	for (; i < to_bits; i++) {
+		intern->bitset_val[i / CHAR_BIT] &= param->bitset_val[i / CHAR_BIT];
+	}
 }
 /* }}} */
 
@@ -278,7 +302,26 @@ PHP_METHOD(BitSet, andOp)
    Clears all bits in this object whose bit is set in the provided object */
 PHP_METHOD(BitSet, andNotOp)
 {
-	RETURN_FALSE;
+	php_bitset_object *intern, *param;
+	zval *param_id;
+	long bitset_len1 = 0, bitset_len2 = 0, i = 0, to_bits = 0;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &param_id, bitset_class_entry) == FAILURE) {
+		return;
+	}
+
+	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
+	param = bitset_get_intern_object(param_id TSRMLS_CC);
+	bitset_len1 = intern->bitset_len * CHAR_BIT;
+	bitset_len2 = param->bitset_len * CHAR_BIT;
+	to_bits = bitset_len1 > bitset_len2 ? bitset_len2 : bitset_len1;
+
+	for (; i < to_bits; i++) {
+		/* If the incoming bit is set, clear on this object */
+		if (param->bitset_val[i / CHAR_BIT] & (1 << (i % CHAR_BIT))) {
+			intern->bitset_val[i / CHAR_BIT] &= ~(1 << (i % CHAR_BIT));
+		}
+	}
 }
 /* }}} */
 
@@ -294,9 +337,9 @@ PHP_METHOD(BitSet, cardinality)
 	total_bits = intern->bitset_len * CHAR_BIT;
 
 	for (; i < total_bits; i++) {
-	    if (intern->bitset_val[i / CHAR_BIT] & (1 << (i % CHAR_BIT))) {
-	        true_bits++;
-	    }
+		if (intern->bitset_val[i / CHAR_BIT] & (1 << (i % CHAR_BIT))) {
+			true_bits++;
+		}
 	}
 
 	RETURN_LONG(true_bits);
@@ -311,32 +354,32 @@ PHP_METHOD(BitSet, clear)
 	long index_from = 0, index_to = 0, usable_index = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|ll", &index_from, &index_to) == FAILURE) {
-	    return;
+		return;
 	}
 
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
 
 	/* Verify the start index is not greater than total bits */
 	if (index_from > intern->bitset_len * CHAR_BIT) {
-	    zend_throw_exception_ex(spl_ce_OutOfRangeException, 0 TSRMLS_CC,
-	                            "The requested start index is greater than the total number of bits");
-	    return;
+		zend_throw_exception_ex(spl_ce_OutOfRangeException, 0 TSRMLS_CC,
+								"The requested start index is greater than the total number of bits");
+		return;
 	}
 
 	/* Clear all bits and reset */
 	if (index_from == 0 && index_to == 0) {
-	    memset(intern->bitset_val, 0, intern->bitset_len);
-	    intern->bitset_val[intern->bitset_len] = '\0';
+		memset(intern->bitset_val, 0, intern->bitset_len);
+		intern->bitset_val[intern->bitset_len] = '\0';
 	} else {
-	    if (index_to == 0) {
-	        usable_index = index_from;
-	    } else {
-	        usable_index = index_to > intern->bitset_len * CHAR_BIT ? intern->bitset_len * CHAR_BIT : index_to;
-	    }
+		if (index_to == 0) {
+			usable_index = index_from;
+		} else {
+			usable_index = index_to > intern->bitset_len * CHAR_BIT ? intern->bitset_len * CHAR_BIT : index_to;
+		}
 
-	    for (; index_from <= usable_index; index_from++) {
-	        intern->bitset_val[index_from / CHAR_BIT] &= ~(1 << (index_from % CHAR_BIT));
-	    }
+		for (; index_from <= usable_index; index_from++) {
+			intern->bitset_val[index_from / CHAR_BIT] &= ~(1 << (index_from % CHAR_BIT));
+		}
 	}
 }
 /* }}} */
@@ -349,22 +392,22 @@ PHP_METHOD(BitSet, get)
 	long bit;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &bit) == FAILURE) {
-	    return;
+		return;
 	}
 
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
 
 	/* The bit requested is larger than all bits in this set */
 	if (bit > intern->bitset_len * CHAR_BIT) {
-	    zend_throw_exception_ex(spl_ce_OutOfRangeException, 0 TSRMLS_CC,
-	                            "The specified index parameter exceeds the total number of bits available");
-	    return;
+		zend_throw_exception_ex(spl_ce_OutOfRangeException, 0 TSRMLS_CC,
+								"The specified index parameter exceeds the total number of bits available");
+		return;
 	}
 
 	if (intern->bitset_val[bit / CHAR_BIT] & (1 << (bit % CHAR_BIT))) {
-	    RETURN_TRUE;
+		RETURN_TRUE;
 	} else {
-	    RETURN_FALSE;
+		RETURN_FALSE;
 	}
 }
 /* }}} */
@@ -378,17 +421,10 @@ PHP_METHOD(BitSet, getRawValue)
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
 
 	if (intern->bitset_val) {
-	    RETURN_STRINGL((char *) intern->bitset_val, intern->bitset_len, 1);
+		RETURN_STRINGL((char *) intern->bitset_val, intern->bitset_len, 1);
 	} else {
-	    RETURN_EMPTY_STRING();
+		RETURN_EMPTY_STRING();
 	}
-}
-/* }}} */
-
-/* {{{ proto int BitSet::hashCode(void)
-   Returns the hash code for this bit set */
-PHP_METHOD(BitSet, hashCode)
-{
 }
 /* }}} */
 
@@ -413,16 +449,16 @@ PHP_METHOD(BitSet, isEmpty)
 
 	/* Loop through all bits and determine if there is a true bit. */
 	for (; i < total_bits; i++) {
-	    if (intern->bitset_val[i / CHAR_BIT] & (1 << i % CHAR_BIT)) {
-	        has_true_bits = 1;
-	        break;
-	    }
+		if (intern->bitset_val[i / CHAR_BIT] & (1 << i % CHAR_BIT)) {
+			has_true_bits = 1;
+			break;
+		}
 	}
 
 	if (has_true_bits) {
-	    RETURN_FALSE;
+		RETURN_FALSE;
 	} else {
-	    RETURN_TRUE;
+		RETURN_TRUE;
 	}
 }
 /* }}} */
@@ -439,9 +475,9 @@ PHP_METHOD(BitSet, length)
 	total_bits = intern->bitset_len * CHAR_BIT;
 
 	for (; i < total_bits; i++) {
-	    if (intern->bitset_val[i / CHAR_BIT] & (1 << (i % CHAR_BIT))) {
-	        highest_bit = i;
-	    }
+		if (intern->bitset_val[i / CHAR_BIT] & (1 << (i % CHAR_BIT))) {
+			highest_bit = i;
+		}
 	}
 
 	RETURN_LONG(highest_bit + 1);
@@ -457,34 +493,34 @@ PHP_METHOD(BitSet, nextClearBit)
 	short found = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &start_bit) == FAILURE) {
-	    return;
+		return;
 	}
 
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
 	bit_diff = intern->bitset_len * CHAR_BIT;
 
 	if (start_bit >= bit_diff) {
-	    zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0 TSRMLS_CC,
-	                            "There are no bits larger than the index provided");
-	    return;
+		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0 TSRMLS_CC,
+								"There are no bits larger than the index provided");
+		return;
 	}
 
 	start_bit++;
 
 	while (start_bit <= bit_diff) {
-	    if (!(intern->bitset_val[start_bit / CHAR_BIT] & (1 << (start_bit % CHAR_BIT)))) {
-	        next_bit = start_bit;
-	        found = 1;
-	        break;
-	    }
+		if (!(intern->bitset_val[start_bit / CHAR_BIT] & (1 << (start_bit % CHAR_BIT)))) {
+			next_bit = start_bit;
+			found = 1;
+			break;
+		}
 
-	    start_bit++;
+		start_bit++;
 	}
 
 	if (found) {
-	    RETURN_LONG(next_bit);
+		RETURN_LONG(next_bit);
 	} else {
-	    RETURN_FALSE;
+		RETURN_FALSE;
 	}
 }
 /* }}} */
@@ -498,34 +534,34 @@ PHP_METHOD(BitSet, nextSetBit)
 	short found = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &start_bit) == FAILURE) {
-	    return;
+		return;
 	}
 
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
 	bit_diff = intern->bitset_len * CHAR_BIT;
 
 	if (start_bit >= bit_diff) {
-	    zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0 TSRMLS_CC,
-	                            "There are no bits larger than the index provided");
-	    return;
+		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0 TSRMLS_CC,
+								"There are no bits larger than the index provided");
+		return;
 	}
 
 	start_bit++;
 
 	while (start_bit <= bit_diff) {
-	    if (intern->bitset_val[start_bit / CHAR_BIT] & (1 << (start_bit % CHAR_BIT))) {
-	        next_bit = start_bit;
-	        found = 1;
-	        break;
-	    }
+		if (intern->bitset_val[start_bit / CHAR_BIT] & (1 << (start_bit % CHAR_BIT))) {
+			next_bit = start_bit;
+			found = 1;
+			break;
+		}
 
-	    start_bit++;
+		start_bit++;
 	}
 
 	if (found) {
-	    RETURN_LONG(next_bit);
+		RETURN_LONG(next_bit);
 	} else {
-	    RETURN_FALSE;
+		RETURN_FALSE;
 	}
 }
 /* }}} */
@@ -534,7 +570,23 @@ PHP_METHOD(BitSet, nextSetBit)
    Performs a logical OR of this object with the provided argument object */
 PHP_METHOD(BitSet, orOp)
 {
-	RETURN_FALSE;
+	php_bitset_object *intern, *param;
+	zval *param_id;
+	long bitset_len1 = 0, bitset_len2 = 0, i = 0, to_bits = 0;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &param_id, bitset_class_entry) == FAILURE) {
+		return;
+	}
+
+	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
+	param = bitset_get_intern_object(param_id TSRMLS_CC);
+	bitset_len1 = intern->bitset_len * CHAR_BIT;
+	bitset_len2 = param->bitset_len * CHAR_BIT;
+	to_bits = bitset_len1 > bitset_len2 ? bitset_len2 : bitset_len1;
+
+	for (; i < to_bits; i++) {
+		intern->bitset_val[i / CHAR_BIT] |= (param->bitset_val[i / CHAR_BIT] & (1 << (i % CHAR_BIT)));
+	}
 }
 /* }}} */
 
@@ -546,31 +598,31 @@ PHP_METHOD(BitSet, previousClearBit)
 	long start_bit = 0, previous_bit = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &start_bit) == FAILURE) {
-	    return;
+		return;
 	}
 
 	if (start_bit < 1) {
-	    zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0 TSRMLS_CC,
-	                            "There are no bits smaller than the index provided (zero)");
-	    return;
+		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0 TSRMLS_CC,
+								"There are no bits smaller than the index provided (zero)");
+		return;
 	}
 
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
 	start_bit--;
 
 	while (start_bit >= 0) {
-	    if (!(intern->bitset_val[start_bit / CHAR_BIT] &  (1 << (start_bit % CHAR_BIT)))) {
-	        previous_bit = start_bit;
-	        break;
-	    }
+		if (!(intern->bitset_val[start_bit / CHAR_BIT] &  (1 << (start_bit % CHAR_BIT)))) {
+			previous_bit = start_bit;
+			break;
+		}
 
-	    start_bit--;
+		start_bit--;
 	}
 
 	if (start_bit < 0) {
-	    RETURN_FALSE;
+		RETURN_FALSE;
 	} else {
-	    RETURN_LONG(start_bit);
+		RETURN_LONG(start_bit);
 	}
 }
 /* }}} */
@@ -583,31 +635,31 @@ PHP_METHOD(BitSet, previousSetBit)
 	long start_bit = 0, previous_bit = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &start_bit) == FAILURE) {
-	    return;
+		return;
 	}
 
 	if (start_bit < 1) {
-	    zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0 TSRMLS_CC,
-	                            "There are no bits smaller than the index provided (zero)");
-	    return;
+		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0 TSRMLS_CC,
+								"There are no bits smaller than the index provided (zero)");
+		return;
 	}
 
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
 	start_bit--;
 
 	while (start_bit >= 0) {
-	    if (intern->bitset_val[start_bit / CHAR_BIT] & (1 << (start_bit % CHAR_BIT))) {
-	        previous_bit = start_bit;
-	        break;
-	    }
+		if (intern->bitset_val[start_bit / CHAR_BIT] & (1 << (start_bit % CHAR_BIT))) {
+			previous_bit = start_bit;
+			break;
+		}
 
-	    start_bit--;
+		start_bit--;
 	}
 
 	if (start_bit < 0) {
-	    RETURN_FALSE;
+		RETURN_FALSE;
 	} else {
-	    RETURN_LONG(start_bit);
+		RETURN_LONG(start_bit);
 	}
 }
 /* }}} */
@@ -621,36 +673,36 @@ PHP_METHOD(BitSet, set)
 	long index_from = 0, index_to = 0, usable_index = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|ll", &index_from, &index_to) == FAILURE) {
-	    return;
+		return;
 	}
 
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
 
 	/* Verify the start index is not greater than total bits */
-	if (index_from > intern->bitset_len * CHAR_BIT) {
-	    zend_throw_exception_ex(spl_ce_OutOfRangeException, 0 TSRMLS_CC,
-	                            "The requested start index is greater than the total number of bits");
-	    return;
+	if (index_from > (intern->bitset_len * CHAR_BIT - 1)) {
+		zend_throw_exception_ex(spl_ce_OutOfRangeException, 0 TSRMLS_CC,
+								"The requested start index is greater than the total number of bits");
+		return;
 	}
 
 	/* Set all bits */
 	if (index_from == 0 && index_to == 0) {
-	    for (; usable_index < intern->bitset_len * CHAR_BIT; usable_index++)
-	    {
-	        intern->bitset_val[usable_index / CHAR_BIT] |= (1 << (usable_index % CHAR_BIT));
-	    }
+		for (; usable_index < intern->bitset_len * CHAR_BIT; usable_index++)
+		{
+			intern->bitset_val[usable_index / CHAR_BIT] |= (1 << (usable_index % CHAR_BIT));
+		}
 
-	    intern->bitset_val[intern->bitset_len] = '\0';
+		intern->bitset_val[intern->bitset_len] = '\0';
 	} else {
-	    if (index_to == 0) {
-	        usable_index = index_from;
-	    } else {
-	        usable_index = index_to > intern->bitset_len * CHAR_BIT ? intern->bitset_len * CHAR_BIT : index_to;
-	    }
+		if (index_to == 0) {
+			usable_index = index_from;
+		} else {
+			usable_index = index_to > intern->bitset_len * CHAR_BIT ? intern->bitset_len * CHAR_BIT : index_to;
+		}
 
-	    for (; index_from <= usable_index; index_from++) {
-	        intern->bitset_val[index_from / CHAR_BIT] |= (1 << (index_from % CHAR_BIT));
-	    }
+		for (; index_from <= usable_index; index_from++) {
+			intern->bitset_val[index_from / CHAR_BIT] |= (1 << (index_from % CHAR_BIT));
+		}
 	}
 }
 /* }}} */
@@ -665,6 +717,42 @@ PHP_METHOD(BitSet, size)
 }
 /* }}} */
 
+/* {{{ proto BitSet BitSet::fromString(string)
+ * Returns a new instance of BitSet based on the provided string
+ */
+PHP_METHOD(BitSet, fromString)
+{
+	php_bitset_object *newobj;
+	zend_class_entry *ce = bitset_class_entry;
+	char *str = NULL;
+	int string_len = 0, i = 0;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &str, &string_len) == FAILURE) {
+		return;
+	}
+
+	newobj = php_bitset_objects_new(ce TSRMLS_CC);
+	return_value->type = IS_OBJECT;
+
+	if (string_len == 0) {
+		bitset_initialize_object(newobj, BITSET_DEFAULT_BITS TSRMLS_CC);
+		return_value->value.obj = php_bitset_register_object(newobj TSRMLS_CC);
+		return;
+	}
+
+	bitset_initialize_object(newobj, string_len TSRMLS_CC);
+
+	for (; i < string_len; i++) {
+		/* If the char is explicitly '1', set it as 1. Otherwise, it's 0 */
+		if (str[i] == '1') {
+			newobj->bitset_val[i / CHAR_BIT] |= (1 << (i % CHAR_BIT));
+		}
+	}
+
+	return_value->value.obj = php_bitset_register_object(newobj TSRMLS_CC);
+}
+/* }}} */
+
 /* {{{ proto BitSet BitSet::fromArray(array inputArray)
  * Returns a new Bitset instance based on the input array. All positive integers
  * within the array values are considered positions of set bits
@@ -673,23 +761,43 @@ PHP_METHOD(BitSet, fromArray)
 {
 	php_bitset_object *newobj;
 	zval *bit_array;
+	zval **entry;
 	zend_class_entry *ce = bitset_class_entry;
-	long array_len;
+	long array_len = 0, highest_value = 0, entry_actual = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &bit_array) == FAILURE) {
-	    return;
+		return;
 	}
 
 	array_len = zend_hash_num_elements(Z_ARRVAL_P(bit_array));
+	newobj = php_bitset_objects_new(ce TSRMLS_CC);
+	return_value->type = IS_OBJECT;
 
 	if (array_len == 0) {
-	    newobj = php_bitset_objects_new(ce TSRMLS_CC);
-	    bitset_initialize_object(newobj, BITSET_DEFAULT_BITS TSRMLS_CC);
-	    return_value->type = IS_OBJECT;
-	    return_value->value.obj = php_bitset_register_object(newobj TSRMLS_CC);
-	    return;
+		bitset_initialize_object(newobj, BITSET_DEFAULT_BITS TSRMLS_CC);
+		return_value->value.obj = php_bitset_register_object(newobj TSRMLS_CC);
+		return;
 	}
 
+	highest_value = bitset_get_highest_value_from_array(bit_array TSRMLS_CC);
+	bitset_initialize_object(newobj, highest_value TSRMLS_CC);
+	zend_hash_internal_pointer_reset(Z_ARRVAL_P(bit_array));
+
+	while (zend_hash_get_current_data(Z_ARRVAL_P(bit_array), (void **) &entry) == SUCCESS) {
+		if (Z_TYPE_PP(entry) != IS_LONG) {
+			SEPARATE_ZVAL(entry);
+			convert_to_long(*entry);
+		}
+
+		if (Z_LVAL_PP(entry) > 0) {
+			entry_actual = Z_LVAL_PP(entry) / CHAR_BIT;
+			newobj->bitset_val[entry_actual] |= (1 << (Z_LVAL_PP(entry) % CHAR_BIT));
+		}
+
+		zend_hash_move_forward(Z_ARRVAL_P(bit_array));
+	}
+
+	return_value->value.obj = php_bitset_register_object(newobj TSRMLS_CC);
 }
 /* }}} */
 
@@ -705,9 +813,9 @@ PHP_METHOD(BitSet, toArray)
 	total_bits = intern->bitset_len * CHAR_BIT;
 
 	for (; i < total_bits; i++) {
-	    if (intern->bitset_val[i / CHAR_BIT] & (1 << (i % CHAR_BIT))) {
-	        add_next_index_long(return_value, i);
-	    }
+		if (intern->bitset_val[i / CHAR_BIT] & (1 << (i % CHAR_BIT))) {
+			add_next_index_long(return_value, i);
+		}
 	}
 }
 /* }}} */
@@ -716,7 +824,23 @@ PHP_METHOD(BitSet, toArray)
    Performs an XOR operation against the current object bit set with the specified argument */
 PHP_METHOD(BitSet, xorOp)
 {
-	RETURN_FALSE;
+	php_bitset_object *intern, *param;
+	zval *param_id;
+	long bitset_len1 = 0, bitset_len2 = 0, i = 0, to_bits = 0;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &param_id, bitset_class_entry) == FAILURE) {
+		return;
+	}
+
+	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
+	param = bitset_get_intern_object(param_id TSRMLS_CC);
+	bitset_len1 = intern->bitset_len * CHAR_BIT;
+	bitset_len2 = param->bitset_len * CHAR_BIT;
+	to_bits = bitset_len1 > bitset_len2 ? bitset_len2 : bitset_len1;
+
+	for (; i < to_bits; i++) {
+		intern->bitset_val[i / CHAR_BIT] ^= (param->bitset_val[i / CHAR_BIT] & (1 << (i % CHAR_BIT)));
+	}
 }
 /* }}} */
 
@@ -731,17 +855,17 @@ PHP_METHOD(BitSet, __toString)
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
 
 	if (intern->bitset_len == 0) {
-	    RETURN_EMPTY_STRING();
+		RETURN_EMPTY_STRING();
 	} else {
-	    len = intern->bitset_len * CHAR_BIT;
-	    retval = (unsigned char *) emalloc(len + 1);
-	    retval[len] = '\0';
+		len = intern->bitset_len * CHAR_BIT;
+		retval = (unsigned char *) emalloc(len + 1);
+		retval[len] = '\0';
 
-	    for (i = 0; i < len; i++) {
-	        retval[i] = ((intern->bitset_val[i / CHAR_BIT] >> (i % CHAR_BIT)) & 1) ? '1' : '0';
-	    }
+		for (i = 0; i < len; i++) {
+			retval[i] = ((intern->bitset_val[i / CHAR_BIT] >> (i % CHAR_BIT)) & 1) ? '1' : '0';
+		}
 
-	    RETURN_STRINGL((char *)retval, len, 0);
+		RETURN_STRINGL((char *)retval, len, 0);
 	}
 }
 /* }}} */
@@ -754,9 +878,9 @@ static const zend_function_entry bitset_class_method_entry[] = {
 	PHP_ME(BitSet, cardinality, arginfo_bitset_cardinality, ZEND_ACC_PUBLIC)
 	PHP_ME(BitSet, clear, arginfo_bitset_clear, ZEND_ACC_PUBLIC)
 	PHP_ME(BitSet, fromArray, arginfo_bitset_fromarray, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+	PHP_ME(BitSet, fromString, arginfo_bitset_fromstring, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 	PHP_ME(BitSet, get, arginfo_bitset_get, ZEND_ACC_PUBLIC)
 	PHP_ME(BitSet, getRawValue, arginfo_bitset_getrawvalue, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, hashCode, arginfo_bitset_hashcode, ZEND_ACC_PUBLIC)
 	PHP_ME(BitSet, intersects, arginfo_bitset_intersects, ZEND_ACC_PUBLIC)
 	PHP_ME(BitSet, isEmpty, arginfo_bitset_isempty, ZEND_ACC_PUBLIC)
 	PHP_ME(BitSet, length, arginfo_bitset_length, ZEND_ACC_PUBLIC)
@@ -792,10 +916,36 @@ static void bitset_objects_free_storage(void *object TSRMLS_DC)
 	zend_object_std_dtor(&intern->zo TSRMLS_CC);
 
 	if (intern->bitset_val) {
-	    efree(intern->bitset_val);
+		efree(intern->bitset_val);
 	}
 
 	efree(object);
+}
+/* }}} */
+
+/* {{{ long bitset_get_highest_value_from_array
+ */
+static long bitset_get_highest_value_from_array(zval *arr TSRMLS_DC)
+{
+	zval **entry;
+	long highest_value = 0;
+
+	zend_hash_internal_pointer_reset(Z_ARRVAL_P(arr));
+
+	while (zend_hash_get_current_data(Z_ARRVAL_P(arr), (void **) &entry) == SUCCESS) {
+		if (Z_TYPE_PP(entry) != IS_LONG) {
+			SEPARATE_ZVAL(entry);
+			convert_to_long_ex(entry);
+		}
+
+		if (Z_LVAL_PP(entry) > highest_value) {
+			highest_value = Z_LVAL_PP(entry);
+		}
+
+		zend_hash_move_forward(Z_ARRVAL_P(arr));
+	}
+
+	return highest_value;
 }
 /* }}} */
 
@@ -894,6 +1044,8 @@ PHP_FUNCTION(bitset_empty)
 		return;
 	}
 
+	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, BITSET_DEPRECATED_MESSAGE);
+
 	if (bits < 0) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "First argument must be a positive integer");
 		return;
@@ -923,6 +1075,8 @@ PHP_FUNCTION(bitset_incl)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zl", &param, &bit) == FAILURE) {
 		return;
 	}
+
+	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, BITSET_DEPRECATED_MESSAGE);
 
 	if (bit < 0) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Second argument must be a positive integer");
@@ -970,6 +1124,8 @@ PHP_FUNCTION(bitset_excl)
 		return;
 	}
 
+	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, BITSET_DEPRECATED_MESSAGE);
+
 	if (bit < 0) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "Second argument must be a positive integer");
 		return;
@@ -999,6 +1155,8 @@ PHP_FUNCTION(bitset_in)
 		return;
 	}
 
+	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, BITSET_DEPRECATED_MESSAGE);
+
 	if (bit < 0) {
 		RETURN_FALSE;  /*  All bits with a negative index should be treated as 0 */
 	}
@@ -1025,6 +1183,8 @@ PHP_FUNCTION(bitset_fill)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &bits) == FAILURE) {
 		return;
 	}
+
+	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, BITSET_DEPRECATED_MESSAGE);
 
 	if (bits < 0) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "First argument must be a positive integer");
@@ -1055,9 +1215,11 @@ PHP_FUNCTION(bitset_intersection)
 
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-		                      "ss", &bitset_data1, &len1, &bitset_data2, &len2) == FAILURE) {
+							  "ss", &bitset_data1, &len1, &bitset_data2, &len2) == FAILURE) {
 		return;
 	}
+
+	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, BITSET_DEPRECATED_MESSAGE);
 
 	if (len1 == 0 || len2 == 0) {
 		RETURN_EMPTY_STRING();
@@ -1090,9 +1252,11 @@ PHP_FUNCTION(bitset_union)
 
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-		                      "ss", &bitset_data1, &len1, &bitset_data2, &len2) == FAILURE) {
+							  "ss", &bitset_data1, &len1, &bitset_data2, &len2) == FAILURE) {
 		return;
 	}
+
+	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, BITSET_DEPRECATED_MESSAGE);
 
 	if (len1 == 0 && len2 == 0) {
 		RETURN_EMPTY_STRING();
@@ -1143,6 +1307,8 @@ PHP_FUNCTION(bitset_invert)
 		return;
 	}
 
+	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, BITSET_DEPRECATED_MESSAGE);
+
 	if (size < 0) {
 		php_error_docref(NULL TSRMLS_CC, E_WARNING, "First argument must be a positive integer");
 		RETURN_EMPTY_STRING();
@@ -1187,12 +1353,14 @@ PHP_FUNCTION(bitset_subset)
 
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-		                      "ss", &bitset_data1, &len1, &bitset_data2, &len2) == FAILURE) {
+							  "ss", &bitset_data1, &len1, &bitset_data2, &len2) == FAILURE) {
 		return;
 	}
 
+	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, BITSET_DEPRECATED_MESSAGE);
+
 	if (len1 >= len2) { /* We should ot care about the rest of bitset1 */
-		rest        = NULL;
+		rest		= NULL;
 		zero_count  = 0;
 		compare_len = len2;
 	} else if (len1 < len2) { /* We should check, that the rest of bitset2 is empty */
@@ -1247,12 +1415,14 @@ PHP_FUNCTION(bitset_equal)
 	long count, compare_len, zero_count;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
-		                      "ss", &bitset_data1, &len1, &bitset_data2, &len2) == FAILURE) {
+							  "ss", &bitset_data1, &len1, &bitset_data2, &len2) == FAILURE) {
 		return;
 	}
 
+	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, BITSET_DEPRECATED_MESSAGE);
+
 	if (len1 == len2) { /* We should ot care about the rest of bitset1 */
-		rest        = NULL;
+		rest		= NULL;
 		zero_count  = 0;
 		compare_len = len2;
 	} else if (len1 < len2) { /* We should check, that the rest of bitset2 is empty */
@@ -1316,6 +1486,8 @@ PHP_FUNCTION(bitset_to_string)
 		return;
 	}
 
+	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, BITSET_DEPRECATED_MESSAGE);
+
 	if (len == 0) {
 		RETURN_EMPTY_STRING();
 	} else {
@@ -1342,6 +1514,8 @@ PHP_FUNCTION(bitset_from_string)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &str_data, &str_len) == FAILURE) {
 		return;
 	}
+
+	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, BITSET_DEPRECATED_MESSAGE);
 
 	if (str_len == 0) {
 		RETURN_EMPTY_STRING();
@@ -1376,6 +1550,8 @@ PHP_FUNCTION(bitset_to_hash)
 		return;
 	}
 
+	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, BITSET_DEPRECATED_MESSAGE);
+
 	/* Initialize return array */
 	array_init(return_value);
 
@@ -1409,6 +1585,8 @@ PHP_FUNCTION(bitset_from_hash)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &bit_arr) == FAILURE) {
 		return;
 	}
+
+	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, BITSET_DEPRECATED_MESSAGE);
 
 	arr_len = zend_hash_num_elements(Z_ARRVAL_P(bit_arr));
 
@@ -1468,6 +1646,8 @@ PHP_FUNCTION(bitset_to_array)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &bitset_data, &len) == FAILURE) {
 		return;
 	}
+
+	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, BITSET_DEPRECATED_MESSAGE);
 
 	/* Initialize return array */
 	array_init(return_value);
@@ -1533,6 +1713,7 @@ PHP_FUNCTION(bitset_from_array)
 		return;
 	}
 
+	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, BITSET_DEPRECATED_MESSAGE);
 	arr_len = zend_hash_num_elements(Z_ARRVAL_P(bit_arr));
 
 	if (arr_len == 0) {
@@ -1599,6 +1780,8 @@ PHP_FUNCTION(bitset_is_empty)
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &bitset_data, &len) == FAILURE) {
 		return;
 	}
+
+	php_error_docref(NULL TSRMLS_CC, E_DEPRECATED, BITSET_DEPRECATED_MESSAGE);
 
 	for (count = 0; count < len/(short)sizeof(unsigned long); count++) {
 		if (((unsigned long *)bitset_data)[count]) {

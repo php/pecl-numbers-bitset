@@ -4,6 +4,7 @@ bitset_excl
 <?php if (!extension_loaded("bitset")) print "skip"; ?>
 --FILE--
 <?php 
+error_reporting(E_ALL ^ E_DEPRECATED);
  $bitset = bitset_empty();
 
  bitset_excl( $bitset, 2 );

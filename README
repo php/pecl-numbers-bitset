@@ -5,8 +5,8 @@ The BitSet library assists by providing a mechanism to manage sets of bits. This
 provides a similar API (object-based) to java.util.BitSet with some PHP-specific 
 flavoring. 
 
-The original functions provided under 1.0 are still available, though are planned to
-be deprecated in 2.1 and removed in 2.2.
+The original functions provided under 1.0 are still available, though deprecated 
+as of 2.0 and will be removed under 3.0.
 
 IMPORTANT
 ---------
@@ -25,4 +25,4 @@ COMPILATION
 REPORTING BUGS
 --------------
 
-Please report all bugs to the PHP Bug system at http://bugs.php.net/.
+Please report all bugs to the PHP Bug system at http://bugs.php.net/. Choose the 'Bitset' option under 'Packages affected'
