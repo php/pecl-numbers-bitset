@@ -469,11 +469,10 @@ PHP_METHOD(BitSet, isEmpty)
 PHP_METHOD(BitSet, length)
 {
 	php_bitset_object *intern;
-	long highest_bit = -1, i = 0, total_bits = 0;
+	long highest_bit = -1, i = 0;
 
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
-	total_bits = intern->bitset_len * CHAR_BIT;
-	i = total_bits;
+	i = intern->bitset_len * CHAR_BIT;
 
 	while (i > 0) {
 		i--;
