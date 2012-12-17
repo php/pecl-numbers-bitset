@@ -473,10 +473,14 @@ PHP_METHOD(BitSet, length)
 
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
 	total_bits = intern->bitset_len * CHAR_BIT;
+	i = total_bits;
 
-	for (; i < total_bits; i++) {
+	while (i > 0) {
+		i--;
+
 		if (intern->bitset_val[i / CHAR_BIT] & (1 << (i % CHAR_BIT))) {
 			highest_bit = i;
+			break;
 		}
 	}
 
