@@ -673,7 +673,7 @@ PHP_METHOD(BitSet, previousSetBit)
 PHP_METHOD(BitSet, set)
 {
 	php_bitset_object *intern;
-	long index_from = 0, index_to = 0, usable_index = 0;
+	long index_from = 0, index_to = -1, usable_index = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|ll", &index_from, &index_to) == FAILURE) {
 		return;
@@ -689,7 +689,7 @@ PHP_METHOD(BitSet, set)
 	}
 
 	/* Set all bits */
-	if (index_from == 0 && index_to == 0) {
+	if (index_from == 0 && index_to == -1) {
 		for (; usable_index < intern->bitset_len * CHAR_BIT; usable_index++)
 		{
 			intern->bitset_val[usable_index / CHAR_BIT] |= (1 << (usable_index % CHAR_BIT));
@@ -697,7 +697,7 @@ PHP_METHOD(BitSet, set)
 
 		intern->bitset_val[intern->bitset_len] = '\0';
 	} else {
-		if (index_to == 0) {
+		if (index_to == -1) {
 			usable_index = index_from;
 		} else {
 			usable_index = index_to > intern->bitset_len * CHAR_BIT ? intern->bitset_len * CHAR_BIT : index_to;
