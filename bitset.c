@@ -963,8 +963,15 @@ static php_bitset_object *php_bitset_objects_new(zend_class_entry *ce TSRMLS_DC)
 	intern->bitset_val = 0;
 
 	zend_object_std_init(&intern->zo, ce TSRMLS_CC);
-	object_properties_init(&intern->zo, ce);
-
+    
+#if PHP_VERSION_ID > 50399
+        object_properties_init(&intern->zo, ce);
+#else
+        zval *tmp;
+        
+     	zend_hash_copy(&intern->zo.properties, &ce->default_properties, (copy_ctor_func_t)zval_add_ref, &tmp, sizeof(zval *));
+#endif
+        
 	return intern;
 }
 /* }}} */
