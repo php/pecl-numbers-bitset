@@ -147,6 +147,10 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_fromstring, 0, 0, 1)
 	ZEND_ARG_INFO(0, str)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_fromrawvalue, 0, 0, 1)
+	ZEND_ARG_INFO(0, str)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_get, 0, 0, 1)
 	ZEND_ARG_INFO(0, index)
 ZEND_END_ARG_INFO()
@@ -428,6 +432,35 @@ PHP_METHOD(BitSet, getRawValue)
 }
 /* }}} */
 
+/* {{{ proto string BitSet::fromRawValue(void)
+ */
+PHP_METHOD(BitSet, fromRawValue)
+{
+	php_bitset_object *newobj;
+	zend_class_entry *ce = bitset_class_entry;
+	char *str = NULL;
+	int string_len = 0;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &str, &string_len) == FAILURE) {
+		return;
+	}
+
+	newobj = php_bitset_objects_new(ce TSRMLS_CC);
+	return_value->type = IS_OBJECT;
+
+	if (string_len == 0) {
+		bitset_initialize_object(newobj, BITSET_DEFAULT_BITS TSRMLS_CC);
+		return_value->value.obj = php_bitset_register_object(newobj TSRMLS_CC);
+		return;
+	}
+
+	bitset_initialize_object(newobj, (string_len * CHAR_BIT) TSRMLS_CC);
+	memcpy(newobj->bitset_val, str, strlen(str));
+	
+	return_value->value.obj = php_bitset_register_object(newobj TSRMLS_CC);
+}
+/* }}} */
+
 /* {{{ proto bool BitSet::intersects(BitSet set)
    Determines if the provided value has any bits set to true that are also true in this object */
 PHP_METHOD(BitSet, intersects)
@@ -673,7 +706,7 @@ PHP_METHOD(BitSet, previousSetBit)
 PHP_METHOD(BitSet, set)
 {
 	php_bitset_object *intern;
-	long index_from = 0, index_to = 0, usable_index = 0;
+	long index_from = -1, index_to = 0, usable_index = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|ll", &index_from, &index_to) == FAILURE) {
 		return;
@@ -681,15 +714,8 @@ PHP_METHOD(BitSet, set)
 
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
 
-	/* Verify the start index is not greater than total bits */
-	if (index_from > (intern->bitset_len * CHAR_BIT - 1)) {
-		zend_throw_exception_ex(spl_ce_OutOfRangeException, 0 TSRMLS_CC,
-								"The requested start index is greater than the total number of bits");
-		return;
-	}
-
 	/* Set all bits */
-	if (index_from == 0 && index_to == 0) {
+	if (index_from == -1 && index_to == 0) {
 		for (; usable_index < intern->bitset_len * CHAR_BIT; usable_index++)
 		{
 			intern->bitset_val[usable_index / CHAR_BIT] |= (1 << (usable_index % CHAR_BIT));
@@ -697,6 +723,13 @@ PHP_METHOD(BitSet, set)
 
 		intern->bitset_val[intern->bitset_len] = '\0';
 	} else {
+		/* Verify the start index is not greater than total bits */
+		if (index_from > (intern->bitset_len * CHAR_BIT - 1)) {
+			zend_throw_exception_ex(spl_ce_OutOfRangeException, 0 TSRMLS_CC,
+									"The requested start index is greater than the total number of bits");
+			return;
+		}
+
 		if (index_to == 0) {
 			usable_index = index_from;
 		} else {
@@ -882,6 +915,7 @@ static const zend_function_entry bitset_class_method_entry[] = {
 	PHP_ME(BitSet, clear, arginfo_bitset_clear, ZEND_ACC_PUBLIC)
 	PHP_ME(BitSet, fromArray, arginfo_bitset_fromarray, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 	PHP_ME(BitSet, fromString, arginfo_bitset_fromstring, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+	PHP_ME(BitSet, fromRawValue, arginfo_bitset_fromrawvalue, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 	PHP_ME(BitSet, get, arginfo_bitset_get, ZEND_ACC_PUBLIC)
 	PHP_ME(BitSet, getRawValue, arginfo_bitset_getrawvalue, ZEND_ACC_PUBLIC)
 	PHP_ME(BitSet, intersects, arginfo_bitset_intersects, ZEND_ACC_PUBLIC)
@@ -963,7 +997,14 @@ static php_bitset_object *php_bitset_objects_new(zend_class_entry *ce TSRMLS_DC)
 	intern->bitset_val = 0;
 
 	zend_object_std_init(&intern->zo, ce TSRMLS_CC);
+
+#if PHP_VERSION_ID > 50399
 	object_properties_init(&intern->zo, ce);
+#else
+	zval *tmp;
+
+	zend_hash_copy(&intern->zo.properties, &ce->default_properties, (copy_ctor_func_t)zval_add_ref, &tmp, sizeof(zval *));
+#endif
 
 	return intern;
 }
