@@ -25,7 +25,7 @@
 #define phpext_bitset_ptr &bitset_module_entry
 extern zend_module_entry bitset_module_entry;
 
-#define PHP_BITSET_VERSION "2.0-dev"
+#define PHP_BITSET_VERSION "2.0.1"
 
 #ifdef PHP_WIN32
 #define PHP_BITSET_API __declspec(dllexport)
