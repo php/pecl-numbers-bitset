@@ -606,7 +606,7 @@ PHP_METHOD(BitSet, orOp)
 PHP_METHOD(BitSet, previousClearBit)
 {
 	php_bitset_object *intern;
-	long start_bit = 0, previous_bit = 0;
+	long start_bit = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &start_bit) == FAILURE) {
 		return;
@@ -623,7 +623,6 @@ PHP_METHOD(BitSet, previousClearBit)
 
 	while (start_bit >= 0) {
 		if (!(intern->bitset_val[start_bit / CHAR_BIT] &  (1 << (start_bit % CHAR_BIT)))) {
-			previous_bit = start_bit;
 			break;
 		}
 
@@ -643,7 +642,7 @@ PHP_METHOD(BitSet, previousClearBit)
 PHP_METHOD(BitSet, previousSetBit)
 {
 	php_bitset_object *intern;
-	long start_bit = 0, previous_bit = 0;
+	long start_bit = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &start_bit) == FAILURE) {
 		return;
@@ -660,7 +659,6 @@ PHP_METHOD(BitSet, previousSetBit)
 
 	while (start_bit >= 0) {
 		if (intern->bitset_val[start_bit / CHAR_BIT] & (1 << (start_bit % CHAR_BIT))) {
-			previous_bit = start_bit;
 			break;
 		}
 
