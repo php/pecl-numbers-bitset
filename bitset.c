@@ -31,6 +31,14 @@
 #include "php_bitset.h"
 #include <limits.h>
 
+/* For PHP < 5.3.7 */
+#ifndef PHP_FE_END
+#define PHP_FE_END { NULL, NULL, NULL }
+#endif
+#ifndef ZEND_MOD_END
+#define ZEND_MOD_END { NULL, NULL, NULL }
+#endif
+
 #define BITSET_DEPRECATED_MESSAGE "The bitset_* functions are deprecated and will be removed in 3.0. Please update to the BitSet class API"
 
 zend_class_entry *bitset_class_entry = NULL;
@@ -963,7 +971,16 @@ static php_bitset_object *php_bitset_objects_new(zend_class_entry *ce TSRMLS_DC)
 	intern->bitset_val = 0;
 
 	zend_object_std_init(&intern->zo, ce TSRMLS_CC);
+#if PHP_MAJOR_VERSION == 5 && PHP_MINOR_VERSION < 4
+	{
+	zval *tmp;
+
+	zend_hash_copy(intern->zo.properties, &ce->default_properties,
+	    (copy_ctor_func_t) zval_add_ref, (void *) &tmp, sizeof(zval *));
+	}
+#else
 	object_properties_init(&intern->zo, ce);
+#endif
 
 	return intern;
 }
