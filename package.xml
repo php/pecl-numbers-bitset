@@ -84,6 +84,7 @@
    <file name="php_bitset.h" role="src" md5sum="7610460d0d5700ab7b714f26f85f4f12" />
    <file name="README" role="doc" md5sum="d06f0d2d6c2b2feab10f0840eeec062a" />
    <file name="TODO" role="doc" md5sum="246a4eae1822c2a878a7ff652ca267d3" />
+   <file name="LICENSE" role="doc" md5sum="52dd90569008fee5bcdbb22d945b1108" />
   </dir>
  </contents>
  <dependencies>
