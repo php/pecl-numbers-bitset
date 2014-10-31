@@ -155,6 +155,10 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_fromstring, 0, 0, 1)
 	ZEND_ARG_INFO(0, str)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_fromrawvalue, 0, 0, 1)
+	ZEND_ARG_INFO(0, str)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_get, 0, 0, 1)
 	ZEND_ARG_INFO(0, index)
 ZEND_END_ARG_INFO()
@@ -433,6 +437,35 @@ PHP_METHOD(BitSet, getRawValue)
 	} else {
 		RETURN_EMPTY_STRING();
 	}
+}
+/* }}} */
+
+/* {{{ proto string BitSet::fromRawValue(void)
+ */
+PHP_METHOD(BitSet, fromRawValue)
+{
+	php_bitset_object *newobj;
+	zend_class_entry *ce = bitset_class_entry;
+	char *str = NULL;
+	int string_len = 0;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &str, &string_len) == FAILURE) {
+		return;
+	}
+
+	newobj = php_bitset_objects_new(ce TSRMLS_CC);
+	return_value->type = IS_OBJECT;
+
+	if (string_len == 0) {
+		bitset_initialize_object(newobj, BITSET_DEFAULT_BITS TSRMLS_CC);
+		return_value->value.obj = php_bitset_register_object(newobj TSRMLS_CC);
+		return;
+	}
+
+	bitset_initialize_object(newobj, (string_len * CHAR_BIT) TSRMLS_CC);
+	memcpy(newobj->bitset_val, str, strlen(str));
+	
+	return_value->value.obj = php_bitset_register_object(newobj TSRMLS_CC);
 }
 /* }}} */
 
@@ -888,6 +921,7 @@ static const zend_function_entry bitset_class_method_entry[] = {
 	PHP_ME(BitSet, clear, arginfo_bitset_clear, ZEND_ACC_PUBLIC)
 	PHP_ME(BitSet, fromArray, arginfo_bitset_fromarray, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 	PHP_ME(BitSet, fromString, arginfo_bitset_fromstring, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+	PHP_ME(BitSet, fromRawValue, arginfo_bitset_fromrawvalue, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 	PHP_ME(BitSet, get, arginfo_bitset_get, ZEND_ACC_PUBLIC)
 	PHP_ME(BitSet, getRawValue, arginfo_bitset_getrawvalue, ZEND_ACC_PUBLIC)
 	PHP_ME(BitSet, intersects, arginfo_bitset_intersects, ZEND_ACC_PUBLIC)
