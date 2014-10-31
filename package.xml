@@ -10,12 +10,6 @@
   <email>willfitch@php.net</email>
   <active>yes</active>
  </lead>
- <lead>
-  <name>Alexander Veremyev</name>
-  <user>cawa</user>
-  <email>cawa@php.net</email>
-  <active>no</active>
- </lead>
  <date>2014-10-31</date>
  <time>07:00:00</time>
  <version>
