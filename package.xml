@@ -68,7 +68,8 @@
 	  <file name="BitSet_size.phpt" role="test" md5sum="8903891b94a4f847c936e9782aba72bb" />
 	  <file name="BitSet_toArray.phpt" role="test" md5sum="71078a0628932c16939d9aa55fbdee4f" />
 	  <file name="BitSet_xorOp.phpt" role="test" md5sum="40d2638095539781afe94518a7671ae7" />
-   </dir>
+  </dir>
+   <file name="LICENSE" role="doc" md5sum="52dd90569008fee5bcdbb22d945b1108" />
    <file name="bitset.c" role="src" md5sum="7510e969b375ea6f714d64278e89225f" />
    <file name="bitset.dsp" role="src" md5sum="5fe65872d47a8c4cb05abfb6653c176c" />
    <file name="config.m4" role="src" md5sum="5d66832c9fec6b1020b478c3bec1d2da" />
@@ -77,6 +78,7 @@
    <file name="php_bitset.h" role="src" md5sum="dbbcc30324efaf0b67e0b422d47dc55f" />
    <file name="README" role="doc" md5sum="d06f0d2d6c2b2feab10f0840eeec062a" />
    <file name="TODO" role="doc" md5sum="246a4eae1822c2a878a7ff652ca267d3" />
+   <file name="COPYING" role="doc" md5sum="d32239bcb673463ab874e80d47fae504" />
    </dir>
    </contents>
  <dependencies>
