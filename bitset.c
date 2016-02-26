@@ -363,7 +363,7 @@ PHP_METHOD(BitSet, cardinality)
 PHP_METHOD(BitSet, clear)
 {
 	php_bitset_object *intern;
-	long index_from = 0, index_to = 0, usable_index = 0;
+	long index_from = -1, index_to = 0, usable_index = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|ll", &index_from, &index_to) == FAILURE) {
 		return;
@@ -371,18 +371,18 @@ PHP_METHOD(BitSet, clear)
 
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
 
-	/* Verify the start index is not greater than total bits */
-	if (index_from > intern->bitset_len * CHAR_BIT) {
-		zend_throw_exception_ex(spl_ce_OutOfRangeException, 0 TSRMLS_CC,
-								"The requested start index is greater than the total number of bits");
-		return;
-	}
-
 	/* Clear all bits and reset */
-	if (index_from == 0 && index_to == 0) {
+	if (index_from == -1 && index_to == 0) {
 		memset(intern->bitset_val, 0, intern->bitset_len);
 		intern->bitset_val[intern->bitset_len] = '\0';
 	} else {
+		/* Verify the start index is not greater than total bits */
+		if (index_from > intern->bitset_len * CHAR_BIT) {
+			zend_throw_exception_ex(spl_ce_OutOfRangeException, 0 TSRMLS_CC,
+									"The requested start index is greater than the total number of bits");
+			return;
+		}
+
 		if (index_to == 0) {
 			usable_index = index_from;
 		} else {
