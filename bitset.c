@@ -232,9 +232,6 @@ const zend_function_entry bitset_functions[] = {
 
 /* {{{ zend_module_dep zend_module_entry ZEND_GET_MODULE
  */
-static const zend_module_dep bitset_deps[] = {
-	ZEND_MOD_END
-};
 
 zend_module_entry bitset_module_entry = {
 	STANDARD_MODULE_HEADER_EX, NULL,
@@ -1401,7 +1398,7 @@ PHP_FUNCTION(bitset_subset)
 {
 	int len1, len2;
 	unsigned char *bitset_data1, *bitset_data2, *rest;
-	long count, compare_len, zero_count;
+	long count = 0, compare_len = 0, zero_count;
 
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC,
@@ -1677,9 +1674,7 @@ PHP_FUNCTION(bitset_from_hash)
 				arr_key_num = strtol(arr_key_str, NULL, 10); /* Important: it uses base 10 conversion like convert_to_long() function */
 			}
 
-			if (arr_key_num >= 0) {
-				bitset_data[arr_key_num/CHAR_BIT] |= 1 << (arr_key_num % CHAR_BIT);
-			}
+			bitset_data[arr_key_num/CHAR_BIT] |= 1 << (arr_key_num % CHAR_BIT);
 		}
 	}
 
