@@ -77,3 +77,50 @@
    <file name="php_bitset.h" role="src" md5sum="dbbcc30324efaf0b67e0b422d47dc55f" />
    <file name="README" role="doc" md5sum="d06f0d2d6c2b2feab10f0840eeec062a" />
    <file name="TODO" role="doc" md5sum="246a4eae1822c2a878a7ff652ca267d3" />
+   </dir>
+   </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>5.3.0</min>
+   </php>
+   <pearinstaller>
+    <min>1.4.0</min>
+   </pearinstaller>
+  </required>
+ </dependencies>
+ <providesextension>bitset</providesextension>
+ <extsrcrelease />
+ <changelog>
+  <release>
+   <version>
+    <release>1.0.1</release>
+    <api>1.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2012-06-13</date>
+   <license uri="http://www.php.net/license">PHP</license>
+   <notes>
+- Fixed build in PHP 5.3+
+   </notes>
+  </release>
+  <release>
+   <version>
+    <release>1.0</release>
+    <api>1.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <date>2005-07-22</date>
+   <license uri="http://www.php.net/license">PHP</license>
+   <notes>
+First official stable release of Bitset
+   </notes>
+  </release>
+ </changelog>
+</package>
