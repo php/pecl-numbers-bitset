@@ -25,7 +25,7 @@
 #define phpext_bitset_ptr &bitset_module_entry
 extern zend_module_entry bitset_module_entry;
 
-#define PHP_BITSET_VERSION "2.0.3"
+#define PHP_BITSET_VERSION "3.0.0"
 
 #ifdef PHP_WIN32
 #define PHP_BITSET_API __declspec(dllexport)
@@ -40,33 +40,19 @@ extern zend_module_entry bitset_module_entry;
 #define BITSET_DEFAULT_BITS 64
 
 typedef struct {
-	zend_object zo;
-	zend_object_handle handle;
 	unsigned char *bitset_val;
 	unsigned long bitset_len;
+	zend_object zo;
 } php_bitset_object;
 
 PHP_MINIT_FUNCTION(bitset);
 PHP_MSHUTDOWN_FUNCTION(bitset);
 PHP_MINFO_FUNCTION(bitset);
 
-PHP_FUNCTION(bitset_empty);
-PHP_FUNCTION(bitset_incl);
-PHP_FUNCTION(bitset_excl);
-PHP_FUNCTION(bitset_in);
-PHP_FUNCTION(bitset_fill);
-PHP_FUNCTION(bitset_intersection);
-PHP_FUNCTION(bitset_union);
-PHP_FUNCTION(bitset_invert);
-PHP_FUNCTION(bitset_subset);
-PHP_FUNCTION(bitset_equal);
-PHP_FUNCTION(bitset_to_string);
-PHP_FUNCTION(bitset_from_string);
-PHP_FUNCTION(bitset_to_hash);
-PHP_FUNCTION(bitset_from_hash);
-PHP_FUNCTION(bitset_to_array);
-PHP_FUNCTION(bitset_from_array);
-PHP_FUNCTION(bitset_is_empty);
+static inline php_bitset_object *php_bitset_fetch_object(zend_object *obj)
+{
+	return (php_bitset_object *)((char *)(obj) - XtOffsetOf(php_bitset_object, zo));
+}
 
 #endif
 
