@@ -10,11 +10,11 @@
   <email>willfitch@php.net</email>
   <active>yes</active>
  </lead>
- <date>2016-02-26</date>
+ <date>2016-02-29</date>
  <time>07:00:00</time>
  <version>
-  <release>2.0.2</release>
-  <api>2.0.2</api>
+  <release>2.0.3</release>
+  <api>2.0.3</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,9 +22,7 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-     - Fixed issue (Github #9) BitSet::clear(0) should clear the first bit only (credits @aurora)
-     - Cleaned up warnings from old code
-     - Added fromRawValue method (Github #6) (credits @aurora)
+     - Updated PHP version info
  </notes>
  <contents>
   <dir name="/">
