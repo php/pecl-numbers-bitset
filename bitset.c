@@ -325,7 +325,7 @@ PHP_METHOD(BitSet, getRawValue)
 	intern = bitset_get_intern_object(getThis());
 
 	if (intern->bitset_val) {
-		str = zend_string_init((const char *)intern->bitset_val, sizeof(intern->bitset_val) - 1, 0);
+		str = zend_string_init((const char *)intern->bitset_val, strlen((const char *) intern->bitset_val), 0);
 		RETURN_STR(str);
 	} else {
 		RETURN_EMPTY_STRING();
@@ -795,8 +795,8 @@ PHP_METHOD(BitSet, __toString)
 		for (i = 0; i < len; i++) {
 			internval[i] = ((intern->bitset_val[i / CHAR_BIT] >> (i % CHAR_BIT)) & 1) ? '1' : '0';
 		}
-		
-		retval = zend_string_init((const char *) internval, sizeof(internval) - 1, 0);
+
+		retval = zend_string_init((const char *) internval, strlen((const char *) internval), 0);
 		efree(internval);
 
 		RETURN_STR(retval);
