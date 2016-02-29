@@ -668,12 +668,11 @@ PHP_METHOD(BitSet, fromString)
 
 	newobj = php_bitset_object_new(ce);
 
-	if (str->len == 0) {
+	if (str->len > 0) {
+		bitset_initialize_object(newobj, str->len);
+	} else {
 		bitset_initialize_object(newobj, BITSET_DEFAULT_BITS);
-		return;
 	}
-
-	bitset_initialize_object(newobj, str->len);
 
 	for (; i < str->len; i++) {
 		/* If the char is explicitly '1', set it as 1. Otherwise, it's 0 */
