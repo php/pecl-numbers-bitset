@@ -321,12 +321,10 @@ PHP_METHOD(BitSet, get)
 PHP_METHOD(BitSet, getRawValue)
 {
 	php_bitset_object *intern;
-	zend_string *str;
 	intern = bitset_get_intern_object(getThis());
 
 	if (intern->bitset_val) {
-		str = zend_string_init((const char *)intern->bitset_val, strlen((const char *) intern->bitset_val), 0);
-		RETURN_STR(str);
+		RETURN_STRINGL((char *) intern->bitset_val, intern->bitset_len);
 	} else {
 		RETURN_EMPTY_STRING();
 	}
@@ -837,9 +835,7 @@ static const zend_function_entry bitset_class_method_entry[] = {
 static php_bitset_object *bitset_get_intern_object(zval *object)
 {
 	zend_object *obj = Z_OBJ_P(object);
-	php_bitset_object *intern;
-	intern = (php_bitset_object *)((char *)(obj) - XtOffsetOf(php_bitset_object, zo));
-	return intern;
+	return php_bitset_fetch_object(obj);
 }
 /* }}} */
 

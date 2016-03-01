@@ -11,47 +11,30 @@
   <active>yes</active>
  </lead>
  <date>2016-02-29</date>
- <time>07:00:00</time>
+ <time>21:00:00</time>
  <version>
-  <release>2.0.3</release>
-  <api>2.0.3</api>
+  <release>3.0.0</release>
+  <api>3.0.0</api>
  </version>
  <stability>
-  <release>stable</release>
-  <api>stable</api>
+  <release>beta</release>
+  <api>beta</api>
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-     - Updated PHP version info
+     - Upgraded API to PHP 7.0
+     - Removed deprecated functions
  </notes>
  <contents>
   <dir name="/">
-   <dir name="tests">
-    <file name="001.phpt" role="test" />
-    <file name="002.phpt" role="test" />
-    <file name="003.phpt" role="test" />
-    <file name="004.phpt" role="test" />
-    <file name="005.phpt" role="test" />
-    <file name="006.phpt" role="test" />
-    <file name="007.phpt" role="test" />
-    <file name="008.phpt" role="test" />
-    <file name="009.phpt" role="test" />
-    <file name="010.phpt" role="test" />
-    <file name="011.phpt" role="test" />
-    <file name="012.phpt" role="test" />
-    <file name="013.phpt" role="test" />
-    <file name="014.phpt" role="test" />
-    <file name="015.phpt" role="test" />
-    <file name="016.phpt" role="test" />
-    <file name="017.phpt" role="test" />
-	  <file name="018.phpt" role="test" />
+    <dir name="tests">
 	  <file name="BitSet_andNotOp.phpt" role="test" />
 	  <file name="BitSet_andOp.phpt" role="test" />
 	  <file name="BitSet_cardinality.phpt" role="test" />
 	  <file name="BitSet_clear.phpt" role="test" />
 	  <file name="BitSet_construct.phpt" role="test" />
-    <file name="BitSet_fromArray.phpt" role="test" />
-    <file name="BitSet_fromRawValue.phpt" role="test" />
+      <file name="BitSet_fromArray.phpt" role="test" />
+      <file name="BitSet_fromRawValue.phpt" role="test" />
 	  <file name="BitSet_fromString.phpt" role="test" />
 	  <file name="BitSet_get.phpt" role="test" />
 	  <file name="BitSet_getRawValue.phpt" role="test" />
@@ -66,7 +49,7 @@
 	  <file name="BitSet_size.phpt" role="test" />
 	  <file name="BitSet_toArray.phpt" role="test" />
 	  <file name="BitSet_xorOp.phpt" role="test" />
-   </dir>
+    </dir>
     <file name="LICENSE" role="doc" />
     <file name="bitset.c" role="src" />
     <file name="bitset.dsp" role="src" />
@@ -81,8 +64,7 @@
  <dependencies>
   <required>
    <php>
-       <min>5.3.0</min>
-       <max>5.6.999</max>
+       <min>7.0.0</min>
    </php>
    <pearinstaller>
     <min>1.4.0</min>
