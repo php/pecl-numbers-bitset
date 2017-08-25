@@ -7,6 +7,11 @@ BitSet BitSet::previousClearBit() - Verifies the previous clear bit is valid bas
 $b = new BitSet(); // 64 bits is fine
 $b->set(20);
 $b->set(18);
+try {
+    var_dump($b->previousClearBit(0));
+} catch (Exception $e) {
+    var_dump(get_class($e).': '.$e->getMessage());
+}
 var_dump($b->previousClearBit(20));
 var_dump($b->previousClearBit(18));
 var_dump($b->previousClearBit(5));
@@ -17,6 +22,7 @@ try {
 }
 ?>
 --EXPECT--
+string(75) "InvalidArgumentException: There are no bits smaller than the index provided"
 int(19)
 int(17)
 int(4)

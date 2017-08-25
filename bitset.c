@@ -537,7 +537,7 @@ PHP_METHOD(BitSet, previousClearBit)
 
 	if (start_bit < 1) {
 		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0,
-								"There are no bits smaller than the index provided (zero)");
+								"There are no bits smaller than the index provided");
 		return;
 	}
 
@@ -550,7 +550,6 @@ PHP_METHOD(BitSet, previousClearBit)
 		return;
 	}
 
-	intern = bitset_get_intern_object(getThis());
 	start_bit--;
 
 	while (start_bit >= 0) {
