@@ -10,9 +10,14 @@ $b->set(18);
 var_dump($b->previousClearBit(20));
 var_dump($b->previousClearBit(18));
 var_dump($b->previousClearBit(5));
+try {
+    var_dump($b->previousClearBit(65));
+} catch (Exception $e) {
+    var_dump(get_class($e).': '.$e->getMessage());
+}
 ?>
 --EXPECT--
 int(19)
 int(17)
 int(4)
-
+string(93) "OutOfRangeException: The specified index parameter exceeds the total number of bits available"
