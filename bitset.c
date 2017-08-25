@@ -302,7 +302,7 @@ PHP_METHOD(BitSet, get)
 	intern = bitset_get_intern_object(getThis());
 
 	/* The bit requested is larger than all bits in this set */
-	if (bit > intern->bitset_len * CHAR_BIT) {
+	if (bit >= intern->bitset_len * CHAR_BIT) {
 		zend_throw_exception_ex(spl_ce_OutOfRangeException, 0,
 								"The specified index parameter exceeds the total number of bits available");
 		return;
