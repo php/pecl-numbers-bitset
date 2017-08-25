@@ -269,7 +269,7 @@ PHP_METHOD(BitSet, clear)
 		intern->bitset_val[intern->bitset_len] = '\0';
 	} else {
 		/* Verify the start index is not greater than total bits */
-		if (index_from > intern->bitset_len * CHAR_BIT) {
+		if (index_from >= intern->bitset_len * CHAR_BIT) {
 			zend_throw_exception_ex(spl_ce_OutOfRangeException, 0,
 									"The requested start index is greater than the total number of bits");
 			return;

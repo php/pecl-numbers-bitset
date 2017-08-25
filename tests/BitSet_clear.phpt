@@ -22,6 +22,11 @@ var_dump($b->__toString());
 $b->set(0, 1);
 $b->clear(0);
 var_dump($b->__toString());
+try {
+    var_dump($b->clear(64));
+} catch (Exception $e) {
+    echo get_class($e).': '.$e->getMessage()."\n";
+}
 ?>
 --EXPECT--
 bool(true)
@@ -29,3 +34,4 @@ bool(false)
 string(64) "0000000000000000000000000000000000000000000000000000000000000000"
 string(64) "0000000000000000000010000000000000000000000000000000000000000000"
 string(64) "0100000000000000000010000000000000000000000000000000000000000000"
+OutOfRangeException: The requested start index is greater than the total number of bits
