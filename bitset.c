@@ -575,6 +575,7 @@ PHP_METHOD(BitSet, previousSetBit)
 {
 	php_bitset_object *intern;
 	zend_long start_bit = 0;
+        long bit_diff = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &start_bit) == FAILURE) {
 		return;
@@ -582,11 +583,19 @@ PHP_METHOD(BitSet, previousSetBit)
 
 	if (start_bit < 1) {
 		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0,
-								"There are no bits smaller than the index provided (zero)");
+								"There are no bits smaller than the index provided");
 		return;
 	}
 
 	intern = bitset_get_intern_object(getThis());
+	bit_diff = intern->bitset_len * CHAR_BIT;
+
+	if (start_bit > bit_diff) {
+		zend_throw_exception_ex(spl_ce_OutOfRangeException, 0,
+								"The specified index parameter exceeds the total number of bits available");
+		return;
+	}
+
 	start_bit--;
 
 	while (start_bit >= 0) {
