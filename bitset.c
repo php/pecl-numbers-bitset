@@ -432,7 +432,7 @@ PHP_METHOD(BitSet, nextClearBit)
 	intern = bitset_get_intern_object(getThis());
 	bit_diff = intern->bitset_len * CHAR_BIT;
 
-	if (start_bit >= bit_diff) {
+	if (start_bit >= bit_diff - 1) {
 		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0,
 								"There are no bits larger than the index provided");
 		return;
