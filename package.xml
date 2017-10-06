@@ -13,8 +13,8 @@
  <date>2016-02-29</date>
  <time>07:00:00</time>
  <version>
-  <release>2.0.3</release>
-  <api>2.0.3</api>
+  <release>2.0.4</release>
+  <api>2.0.4</api>
  </version>
  <stability>
   <release>stable</release>
@@ -22,7 +22,8 @@
  </stability>
  <license uri="http://www.php.net/license">PHP</license>
  <notes>
-     - Updated PHP version info
+     - Fixed out of bounds bug (thanks kgodet)
+     - Fixed fromRawValue missing offset
  </notes>
  <contents>
   <dir name="/">

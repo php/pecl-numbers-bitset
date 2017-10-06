@@ -374,7 +374,7 @@ PHP_METHOD(BitSet, clear)
 		intern->bitset_val[intern->bitset_len] = '\0';
 	} else {
 		/* Verify the start index is not greater than total bits */
-		if (index_from > intern->bitset_len * CHAR_BIT) {
+		if (index_from >= intern->bitset_len * CHAR_BIT) {
 			zend_throw_exception_ex(spl_ce_OutOfRangeException, 0 TSRMLS_CC,
 									"The requested start index is greater than the total number of bits");
 			return;
@@ -407,7 +407,7 @@ PHP_METHOD(BitSet, get)
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
 
 	/* The bit requested is larger than all bits in this set */
-	if (bit > intern->bitset_len * CHAR_BIT) {
+	if (bit >= intern->bitset_len * CHAR_BIT) {
 		zend_throw_exception_ex(spl_ce_OutOfRangeException, 0 TSRMLS_CC,
 								"The specified index parameter exceeds the total number of bits available");
 		return;
@@ -443,7 +443,7 @@ PHP_METHOD(BitSet, fromRawValue)
 {
    php_bitset_object *newobj;
    zend_class_entry *ce = bitset_class_entry;
-   char *str = NULL;
+   unsigned char *str = NULL;
    int string_len = 0;
 
    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &str, &string_len) == FAILURE) {
@@ -460,7 +460,7 @@ PHP_METHOD(BitSet, fromRawValue)
    }
 
    bitset_initialize_object(newobj, (string_len * CHAR_BIT) TSRMLS_CC);
-   memcpy(newobj->bitset_val, str, strlen(str));
+   memcpy(newobj->bitset_val, str, string_len);
    
    return_value->value.obj = php_bitset_register_object(newobj TSRMLS_CC);
 }
@@ -540,7 +540,7 @@ PHP_METHOD(BitSet, nextClearBit)
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
 	bit_diff = intern->bitset_len * CHAR_BIT;
 
-	if (start_bit >= bit_diff) {
+	if (start_bit >= bit_diff - 1) {
 		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0 TSRMLS_CC,
 								"There are no bits larger than the index provided");
 		return;
@@ -581,7 +581,7 @@ PHP_METHOD(BitSet, nextSetBit)
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
 	bit_diff = intern->bitset_len * CHAR_BIT;
 
-	if (start_bit >= bit_diff) {
+	if (start_bit >= bit_diff - 1) {
 		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0 TSRMLS_CC,
 								"There are no bits larger than the index provided");
 		return;
@@ -636,7 +636,7 @@ PHP_METHOD(BitSet, orOp)
 PHP_METHOD(BitSet, previousClearBit)
 {
 	php_bitset_object *intern;
-	long start_bit = 0;
+	long start_bit = 0, bit_diff = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &start_bit) == FAILURE) {
 		return;
@@ -644,11 +644,19 @@ PHP_METHOD(BitSet, previousClearBit)
 
 	if (start_bit < 1) {
 		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0 TSRMLS_CC,
-								"There are no bits smaller than the index provided (zero)");
+								"There are no bits smaller than the index provided");
 		return;
 	}
 
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
+	bit_diff = intern->bitset_len * CHAR_BIT;
+
+	if (start_bit > bit_diff) {
+		zend_throw_exception_ex(spl_ce_OutOfRangeException, 0,
+								"The specified index parameter exceeds the total number of bits available");
+		return;
+	}
+
 	start_bit--;
 
 	while (start_bit >= 0) {
@@ -672,7 +680,7 @@ PHP_METHOD(BitSet, previousClearBit)
 PHP_METHOD(BitSet, previousSetBit)
 {
 	php_bitset_object *intern;
-	long start_bit = 0;
+	long start_bit = 0, bit_diff = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &start_bit) == FAILURE) {
 		return;
@@ -680,11 +688,18 @@ PHP_METHOD(BitSet, previousSetBit)
 
 	if (start_bit < 1) {
 		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0 TSRMLS_CC,
-								"There are no bits smaller than the index provided (zero)");
+								"There are no bits smaller than the index provided");
 		return;
 	}
 
 	intern = bitset_get_intern_object(getThis() TSRMLS_CC);
+	bit_diff = intern->bitset_len * CHAR_BIT;
+
+	if (start_bit > bit_diff) {
+		zend_throw_exception_ex(spl_ce_OutOfRangeException, 0,
+								"The specified index parameter exceeds the total number of bits available");
+	}
+
 	start_bit--;
 
 	while (start_bit >= 0) {
