@@ -684,16 +684,11 @@ PHP_METHOD(BitSet, fromArray)
 	bitset_initialize_object(newobj, highest_value);
 
 	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(bit_array), entry) {
-		ZVAL_DEREF(entry);
-        SEPARATE_ZVAL_NOREF(entry);
+		zend_long entry_long = zval_get_long(entry);
 
-		if (Z_TYPE_P(entry) != IS_LONG) {
-			convert_to_long(entry);
-		}
-
-		if (Z_LVAL_P(entry) > 0) {
-			entry_actual = Z_LVAL_P(entry) / CHAR_BIT;
-			newobj->bitset_val[entry_actual] |= (1 << (Z_LVAL_P(entry) % CHAR_BIT));
+		if (entry_long > 0) {
+			entry_actual = entry_long / CHAR_BIT;
+			newobj->bitset_val[entry_actual] |= (1 << (entry_long % CHAR_BIT));
 		}
 	} ZEND_HASH_FOREACH_END();
 
@@ -799,15 +794,10 @@ static long bitset_get_highest_value_from_array(zval *arr)
 	long highest_value = 0;
 
 	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(arr), entry) {
-		ZVAL_DEREF(entry);
-        SEPARATE_ZVAL_NOREF(entry);
-		
-		if (Z_TYPE_P(entry) != IS_LONG) {
-			convert_to_long_ex(entry);
-		}
+		zend_long entry_long = zval_get_long(entry);
 
-		if (Z_LVAL_P(entry) > highest_value) {
-			highest_value = Z_LVAL_P(entry);
+		if (entry_long > highest_value) {
+			highest_value = entry_long;
 		}
 	} ZEND_HASH_FOREACH_END();
 
