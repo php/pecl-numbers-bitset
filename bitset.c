@@ -118,7 +118,11 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_xorop, 0)
 ZEND_END_ARG_INFO()
 
+#if PHP_VERSION_ID >= 80200
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_bitset___tostring, 0, 0, IS_STRING, 0)
+#else
 ZEND_BEGIN_ARG_INFO(arginfo_bitset___tostring, 0)
+#endif
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO(arginfo_bitset_getrawvalue, 0)
