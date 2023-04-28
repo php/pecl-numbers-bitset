@@ -27,7 +27,6 @@ class BitSet {
 
 	public function getRawValue(): string {}
 
-	/* not yet implemented */
 	public function intersects(BitSet $set): bool {}
 
 	public function isEmpty(): bool {}
@@ -54,4 +53,3 @@ class BitSet {
 
 	public function __toString(): string {}
 }
-

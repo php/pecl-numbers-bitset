@@ -1,6 +1,6 @@
 /*
 	+----------------------------------------------------------------------+
-	| Copyright (c) 1997-2023 The PHP Group								   |
+	| Copyright (c) The PHP Group                                          |
 	+----------------------------------------------------------------------+
 	| This source file is subject to version 3.01 of the PHP license,	   |
 	| that is bundled with this package in the file LICENSE, and is		   |
@@ -289,6 +289,27 @@ PHP_METHOD(BitSet, fromRawValue)
    Determines if the provided value has any bits set to true that are also true in this object */
 PHP_METHOD(BitSet, intersects)
 {
+	php_bitset_object *a, *b;
+	zval *param_id;
+	long bitset_len1, bitset_len2, i, to_bits;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &param_id, bitset_class_entry) == FAILURE) {
+		RETURN_THROWS();
+	}
+
+	a = bitset_get_intern_object(getThis());
+	b = bitset_get_intern_object(param_id);
+	bitset_len1 = a->bitset_len;
+	bitset_len2 = b->bitset_len;
+
+	to_bits = bitset_len1 > bitset_len2 ? bitset_len2 : bitset_len1;
+
+	for (i = 0; i < to_bits; i++) {
+		/* If the bits is set in both */
+		if (a->bitset_val[i] & b->bitset_val[i]) {
+			RETURN_TRUE;
+		}
+	}
 	RETURN_FALSE;
 }
 /* }}} */
@@ -298,29 +319,23 @@ PHP_METHOD(BitSet, intersects)
 PHP_METHOD(BitSet, isEmpty)
 {
 	php_bitset_object *intern;
-	long total_bits = 0, i = 0;
-	short has_true_bits = 0;
+	long total_bits, i;
 
 	if (zend_parse_parameters_none() == FAILURE) {
 		RETURN_THROWS();
 	}
 
 	intern = bitset_get_intern_object(getThis());
-	total_bits = intern->bitset_len * CHAR_BIT;
+	total_bits = intern->bitset_len;
 
 	/* Loop through all bits and determine if there is a true bit. */
-	for (; i < total_bits; i++) {
-		if (intern->bitset_val[i / CHAR_BIT] & (1 << i % CHAR_BIT)) {
-			has_true_bits = 1;
-			break;
+	for (i = 0; i < total_bits; i++) {
+		if (intern->bitset_val[i]) {
+			RETURN_FALSE;
 		}
 	}
 
-	if (has_true_bits) {
-		RETURN_FALSE;
-	} else {
-		RETURN_TRUE;
-	}
+	RETURN_TRUE;
 }
 /* }}} */
 

@@ -37,6 +37,7 @@
 	  <file name="BitSet_fromString.phpt" role="test" />
 	  <file name="BitSet_get.phpt" role="test" />
 	  <file name="BitSet_getRawValue.phpt" role="test" />
+	  <file name="BitSet_intersects.phpt" role="test" />
 	  <file name="BitSet_isEmpty.phpt" role="test" />
 	  <file name="BitSet_length.phpt" role="test" />
 	  <file name="BitSet_nextClearBit.phpt" role="test" />
