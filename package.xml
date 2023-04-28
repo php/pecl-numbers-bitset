@@ -51,6 +51,9 @@
     </dir>
     <file name="LICENSE" role="doc" />
     <file name="bitset.c" role="src" />
+    <file name="bitset.stub.php" role="src" />
+    <file name="bitset_arginfo.h" role="src" />
+    <file name="bitset_legacy_arginfo.h" role="src" />
     <file name="bitset.dsp" role="src" />
     <file name="config.m4" role="src" />
     <file name="config.w32" role="src" />

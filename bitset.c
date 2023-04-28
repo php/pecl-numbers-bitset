@@ -1,8 +1,6 @@
 /*
 	+----------------------------------------------------------------------+
-	| PHP Version 5														   |
-	+----------------------------------------------------------------------+
-	| Copyright (c) 1997-2012 The PHP Group								   |
+	| Copyright (c) 1997-2023 The PHP Group								   |
 	+----------------------------------------------------------------------+
 	| This source file is subject to version 3.01 of the PHP license,	   |
 	| that is bundled with this package in the file LICENSE, and is		   |
@@ -15,8 +13,6 @@
 	| Authors: Will Fitch <willfitch@php.net>							   |
 	|		   Alexander Veremyev <cawa@csa.ru>							   |
 	+----------------------------------------------------------------------+
-
-	$Id$
 */
 
 #ifdef HAVE_CONFIG_H
@@ -31,12 +27,11 @@
 #include "php_bitset.h"
 #include <limits.h>
 
-/* For PHP < 5.3.7 */
-#ifndef PHP_FE_END
-#define PHP_FE_END { NULL, NULL, NULL }
-#endif
-#ifndef ZEND_MOD_END
-#define ZEND_MOD_END { NULL, NULL, NULL }
+#if PHP_VERSION_ID >= 80000
+#include "bitset_arginfo.h"
+#else
+#include "bitset_legacy_arginfo.h"
+#define RETURN_THROWS() return
 #endif
 
 #define BITSET_DEPRECATED_MESSAGE "The bitset_* functions are deprecated and will be removed in 3.0. Please update to the BitSet class API"
@@ -49,85 +44,6 @@ static php_bitset_object *php_bitset_object_new(zend_class_entry *ce);
 static long bitset_get_highest_value_from_array(zval *arr);
 static void bitset_initialize_object(php_bitset_object *intern, long bits);
 
-/* {{{ Arginfo */
-ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset___construct, 0, 0, 1)
-	ZEND_ARG_INFO(0, value)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_andop, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_andnotop, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_cardinality, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_clear, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_fromarray, 0, 0, 1)
-	ZEND_ARG_INFO(0, arr)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_fromstring, 0, 0, 1)
-	ZEND_ARG_INFO(0, str)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_fromrawvalue, 0, 0, 1)
-   ZEND_ARG_INFO(0, str)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(arginfo_bitset_get, 0, 0, 1)
-	ZEND_ARG_INFO(0, index)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_intersects, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_isempty, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_length, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_nextclearbit, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_nextsetbit, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_orop, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_previousclearbit, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_previoussetbit, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_set, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_size, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_toarray, 0)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_xorop, 0)
-ZEND_END_ARG_INFO()
-
-#if PHP_VERSION_ID >= 80200
-ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_bitset___tostring, 0, 0, IS_STRING, 0)
-#else
-ZEND_BEGIN_ARG_INFO(arginfo_bitset___tostring, 0)
-#endif
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO(arginfo_bitset_getrawvalue, 0)
-ZEND_END_ARG_INFO()
-/* }}} */
 
 /* {{{ zend_module_dep zend_module_entry ZEND_GET_MODULE
  */
@@ -159,7 +75,7 @@ PHP_METHOD(BitSet, __construct)
 	zend_long bits = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|l", &bits) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	intern = bitset_get_intern_object(getThis());
@@ -171,7 +87,7 @@ PHP_METHOD(BitSet, __construct)
 		/* Bits can't be negative */
 		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0,
 								"The total bits to allocate must be 0 or greater");
-		return;
+		RETURN_THROWS();
 	}
 
 	bitset_initialize_object(intern, bits);
@@ -191,7 +107,7 @@ PHP_METHOD(BitSet, andOp)
 	long bitset_len1 = 0, bitset_len2 = 0, i = 0, to_bits = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &param_id, bitset_class_entry) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	intern = bitset_get_intern_object(getThis());
@@ -215,7 +131,7 @@ PHP_METHOD(BitSet, andNotOp)
 	long bitset_len1 = 0, bitset_len2 = 0, i = 0, to_bits = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &param_id, bitset_class_entry) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	intern = bitset_get_intern_object(getThis());
@@ -240,6 +156,10 @@ PHP_METHOD(BitSet, cardinality)
 	php_bitset_object *intern;
 	long i = 0, total_bits = 0, true_bits = 0;
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
+
 	intern = bitset_get_intern_object(getThis());
 
 	total_bits = intern->bitset_len * CHAR_BIT;
@@ -262,7 +182,7 @@ PHP_METHOD(BitSet, clear)
 	long index_from = -1, index_to = 0, usable_index = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|ll", &index_from, &index_to) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	intern = bitset_get_intern_object(getThis());
@@ -276,7 +196,7 @@ PHP_METHOD(BitSet, clear)
 		if (index_from >= intern->bitset_len * CHAR_BIT) {
 			zend_throw_exception_ex(spl_ce_OutOfRangeException, 0,
 									"The requested start index is greater than the total number of bits");
-			return;
+			RETURN_THROWS();
 		}
 
 		if (index_to == 0) {
@@ -300,7 +220,7 @@ PHP_METHOD(BitSet, get)
 	zend_long bit;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &bit) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	intern = bitset_get_intern_object(getThis());
@@ -309,7 +229,7 @@ PHP_METHOD(BitSet, get)
 	if (bit >= intern->bitset_len * CHAR_BIT) {
 		zend_throw_exception_ex(spl_ce_OutOfRangeException, 0,
 								"The specified index parameter exceeds the total number of bits available");
-		return;
+		RETURN_THROWS();
 	}
 
 	if (intern->bitset_val[bit / CHAR_BIT] & (1 << (bit % CHAR_BIT))) {
@@ -326,6 +246,10 @@ PHP_METHOD(BitSet, getRawValue)
 {
 	php_bitset_object *intern;
 	intern = bitset_get_intern_object(getThis());
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
 
 	if (intern->bitset_val) {
 		RETURN_STRINGL((char *) intern->bitset_val, intern->bitset_len);
@@ -344,7 +268,7 @@ PHP_METHOD(BitSet, fromRawValue)
    zend_string *str;
 
    if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &str) == FAILURE) {
-       return;
+		RETURN_THROWS();
    }
 
    newobj = php_bitset_object_new(ce);
@@ -377,6 +301,10 @@ PHP_METHOD(BitSet, isEmpty)
 	long total_bits = 0, i = 0;
 	short has_true_bits = 0;
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
+
 	intern = bitset_get_intern_object(getThis());
 	total_bits = intern->bitset_len * CHAR_BIT;
 
@@ -404,6 +332,10 @@ PHP_METHOD(BitSet, length)
 	php_bitset_object *intern;
 	long highest_bit = -1, i = 0;
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
+
 	intern = bitset_get_intern_object(getThis());
 	i = intern->bitset_len * CHAR_BIT;
 
@@ -430,7 +362,7 @@ PHP_METHOD(BitSet, nextClearBit)
 	short found = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &start_bit) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	intern = bitset_get_intern_object(getThis());
@@ -439,7 +371,7 @@ PHP_METHOD(BitSet, nextClearBit)
 	if (start_bit >= bit_diff - 1) {
 		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0,
 								"There are no bits larger than the index provided");
-		return;
+		RETURN_THROWS();
 	}
 
 	start_bit++;
@@ -472,7 +404,7 @@ PHP_METHOD(BitSet, nextSetBit)
 	short found = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &start_bit) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	intern = bitset_get_intern_object(getThis());
@@ -481,7 +413,7 @@ PHP_METHOD(BitSet, nextSetBit)
 	if (start_bit >= bit_diff - 1) {
 		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0,
 								"There are no bits larger than the index provided");
-		return;
+		RETURN_THROWS();
 	}
 
 	start_bit++;
@@ -513,7 +445,7 @@ PHP_METHOD(BitSet, orOp)
 	long bitset_len1 = 0, bitset_len2 = 0, i = 0, to_bits = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &param_id, bitset_class_entry) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	intern = bitset_get_intern_object(getThis());
@@ -536,13 +468,13 @@ PHP_METHOD(BitSet, previousClearBit)
 	long start_bit = 0, bit_diff = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &start_bit) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	if (start_bit < 1) {
 		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0,
 								"There are no bits smaller than the index provided");
-		return;
+		RETURN_THROWS();
 	}
 
 	intern = bitset_get_intern_object(getThis());
@@ -551,7 +483,7 @@ PHP_METHOD(BitSet, previousClearBit)
 	if (start_bit > bit_diff) {
 		zend_throw_exception_ex(spl_ce_OutOfRangeException, 0,
 								"The specified index parameter exceeds the total number of bits available");
-		return;
+		RETURN_THROWS();
 	}
 
 	start_bit--;
@@ -581,13 +513,13 @@ PHP_METHOD(BitSet, previousSetBit)
 	long bit_diff = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &start_bit) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	if (start_bit < 1) {
 		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0,
 								"There are no bits smaller than the index provided");
-		return;
+		RETURN_THROWS();
 	}
 
 	intern = bitset_get_intern_object(getThis());
@@ -596,7 +528,7 @@ PHP_METHOD(BitSet, previousSetBit)
 	if (start_bit > bit_diff) {
 		zend_throw_exception_ex(spl_ce_OutOfRangeException, 0,
 								"The specified index parameter exceeds the total number of bits available");
-		return;
+		RETURN_THROWS();
 	}
 
 	start_bit--;
@@ -627,7 +559,7 @@ PHP_METHOD(BitSet, set)
 	long usable_index = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "|ll", &index_from, &index_to) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	intern = bitset_get_intern_object(getThis());
@@ -645,7 +577,7 @@ PHP_METHOD(BitSet, set)
 		if (index_from > (intern->bitset_len * CHAR_BIT - 1)) {
 			zend_throw_exception_ex(spl_ce_OutOfRangeException, 0,
 									"The requested start index is greater than the total number of bits");
-			return;
+			RETURN_THROWS();
 		}
 
 		if (index_to == 0) {
@@ -667,6 +599,11 @@ PHP_METHOD(BitSet, size)
 {
 	php_bitset_object *intern;
 	intern = bitset_get_intern_object(getThis());
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
+
 	RETURN_LONG(intern->bitset_len * CHAR_BIT);
 }
 /* }}} */
@@ -682,7 +619,7 @@ PHP_METHOD(BitSet, fromString)
 	int i = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &str) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	newobj = php_bitset_object_new(ce);
@@ -717,7 +654,7 @@ PHP_METHOD(BitSet, fromArray)
 	long array_len = 0, highest_value = 0, entry_actual = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "a", &bit_array) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	array_len = zend_hash_num_elements(Z_ARRVAL_P(bit_array));
@@ -756,6 +693,10 @@ PHP_METHOD(BitSet, toArray)
 	php_bitset_object *intern;
 	long i = 0, total_bits = 0;
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
+
 	intern = bitset_get_intern_object(getThis());
 	array_init(return_value);
 	total_bits = intern->bitset_len * CHAR_BIT;
@@ -777,7 +718,7 @@ PHP_METHOD(BitSet, xorOp)
 	long bitset_len1 = 0, bitset_len2 = 0, i = 0, to_bits = 0;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &param_id, bitset_class_entry) == FAILURE) {
-		return;
+		RETURN_THROWS();
 	}
 
 	intern = bitset_get_intern_object(getThis());
@@ -801,6 +742,10 @@ PHP_METHOD(BitSet, __toString)
 	unsigned char *internval = NULL;
 	long len, i;
 
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
+
 	intern = bitset_get_intern_object(getThis());
 
 	if (intern->bitset_len == 0) {
@@ -820,35 +765,6 @@ PHP_METHOD(BitSet, __toString)
 		RETURN_STR(retval);
 	}
 }
-/* }}} */
-
-/* {{{ assignments */
-static const zend_function_entry bitset_class_method_entry[] = {
-	PHP_ME(BitSet, __construct, arginfo_bitset___construct, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, andOp, arginfo_bitset_andop, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, andNotOp, arginfo_bitset_andnotop, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, cardinality, arginfo_bitset_cardinality, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, clear, arginfo_bitset_clear, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, fromArray, arginfo_bitset_fromarray, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-	PHP_ME(BitSet, fromString, arginfo_bitset_fromstring, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-	PHP_ME(BitSet, fromRawValue, arginfo_bitset_fromrawvalue, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-	PHP_ME(BitSet, get, arginfo_bitset_get, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, getRawValue, arginfo_bitset_getrawvalue, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, intersects, arginfo_bitset_intersects, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, isEmpty, arginfo_bitset_isempty, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, length, arginfo_bitset_length, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, nextClearBit, arginfo_bitset_nextclearbit, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, nextSetBit, arginfo_bitset_nextsetbit, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, orOp, arginfo_bitset_orop, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, previousClearBit, arginfo_bitset_previousclearbit, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, previousSetBit, arginfo_bitset_previoussetbit, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, set, arginfo_bitset_set, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, size, arginfo_bitset_size, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, toArray, arginfo_bitset_toarray, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, xorOp, arginfo_bitset_xorop, ZEND_ACC_PUBLIC)
-	PHP_ME(BitSet, __toString, arginfo_bitset___tostring, ZEND_ACC_PUBLIC)
-	PHP_FE_END
-};
 /* }}} */
 
 /* {{{ php_bitset_object *bitset_get_intern_object
@@ -965,10 +881,8 @@ PHP_MINFO_FUNCTION(bitset)
 /* {{{ PHP_MINIT_FUNCTION */
 PHP_MINIT_FUNCTION(bitset)
 {
-	zend_class_entry ce;
-	INIT_CLASS_ENTRY(ce, "BitSet", bitset_class_method_entry);
+	bitset_class_entry = register_class_BitSet();
 
-	bitset_class_entry = zend_register_internal_class(&ce);
 	bitset_class_entry->create_object = bitset_create_object;
 
 	memcpy(&bitset_object_handlers, zend_get_std_object_handlers(), sizeof(bitset_object_handlers));
