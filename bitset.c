@@ -104,7 +104,7 @@ PHP_METHOD(BitSet, andOp)
 {
 	php_bitset_object *intern, *param;
 	zval *param_id;
-	long bitset_len1 = 0, bitset_len2 = 0, i = 0, to_bits = 0;
+	long bitset_len1, bitset_len2, i, to_bits;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &param_id, bitset_class_entry) == FAILURE) {
 		RETURN_THROWS();
@@ -112,12 +112,12 @@ PHP_METHOD(BitSet, andOp)
 
 	intern = bitset_get_intern_object(getThis());
 	param = bitset_get_intern_object(param_id);
-	bitset_len1 = intern->bitset_len * CHAR_BIT;
-	bitset_len2 = param->bitset_len * CHAR_BIT;
+	bitset_len1 = intern->bitset_len;
+	bitset_len2 = param->bitset_len;
 	to_bits = bitset_len1 > bitset_len2 ? bitset_len2 : bitset_len1;
 
-	for (; i < to_bits; i++) {
-		intern->bitset_val[i / CHAR_BIT] &= param->bitset_val[i / CHAR_BIT];
+	for (i = 0; i < to_bits; i++) {
+		intern->bitset_val[i] &= param->bitset_val[i];
 	}
 }
 /* }}} */
@@ -128,7 +128,7 @@ PHP_METHOD(BitSet, andNotOp)
 {
 	php_bitset_object *intern, *param;
 	zval *param_id;
-	long bitset_len1 = 0, bitset_len2 = 0, i = 0, to_bits = 0;
+	long bitset_len1, bitset_len2, i, to_bits;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &param_id, bitset_class_entry) == FAILURE) {
 		RETURN_THROWS();
@@ -140,7 +140,7 @@ PHP_METHOD(BitSet, andNotOp)
 	bitset_len2 = param->bitset_len * CHAR_BIT;
 	to_bits = bitset_len1 > bitset_len2 ? bitset_len2 : bitset_len1;
 
-	for (; i < to_bits; i++) {
+	for (i = 0; i < to_bits; i++) {
 		/* If the incoming bit is set, clear on this object */
 		if (param->bitset_val[i / CHAR_BIT] & (1 << (i % CHAR_BIT))) {
 			intern->bitset_val[i / CHAR_BIT] &= ~(1 << (i % CHAR_BIT));
@@ -457,7 +457,7 @@ PHP_METHOD(BitSet, orOp)
 {
 	php_bitset_object *intern, *param;
 	zval *param_id;
-	long bitset_len1 = 0, bitset_len2 = 0, i = 0, to_bits = 0;
+	long bitset_len1, bitset_len2, i, to_bits;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &param_id, bitset_class_entry) == FAILURE) {
 		RETURN_THROWS();
@@ -465,12 +465,12 @@ PHP_METHOD(BitSet, orOp)
 
 	intern = bitset_get_intern_object(getThis());
 	param = bitset_get_intern_object(param_id);
-	bitset_len1 = intern->bitset_len * CHAR_BIT;
-	bitset_len2 = param->bitset_len * CHAR_BIT;
+	bitset_len1 = intern->bitset_len;
+	bitset_len2 = param->bitset_len;
 	to_bits = bitset_len1 > bitset_len2 ? bitset_len2 : bitset_len1;
 
-	for (; i < to_bits; i++) {
-		intern->bitset_val[i / CHAR_BIT] |= (param->bitset_val[i / CHAR_BIT] & (1 << (i % CHAR_BIT)));
+	for (i = 0; i < to_bits; i++) {
+		intern->bitset_val[i] |= param->bitset_val[i];
 	}
 }
 /* }}} */
@@ -730,7 +730,7 @@ PHP_METHOD(BitSet, xorOp)
 {
 	php_bitset_object *intern, *param;
 	zval *param_id;
-	long bitset_len1 = 0, bitset_len2 = 0, i = 0, to_bits = 0;
+	long bitset_len1, bitset_len2, i, to_bits;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "O", &param_id, bitset_class_entry) == FAILURE) {
 		RETURN_THROWS();
@@ -738,12 +738,12 @@ PHP_METHOD(BitSet, xorOp)
 
 	intern = bitset_get_intern_object(getThis());
 	param = bitset_get_intern_object(param_id);
-	bitset_len1 = intern->bitset_len * CHAR_BIT;
-	bitset_len2 = param->bitset_len * CHAR_BIT;
+	bitset_len1 = intern->bitset_len;
+	bitset_len2 = param->bitset_len;
 	to_bits = bitset_len1 > bitset_len2 ? bitset_len2 : bitset_len1;
 
-	for (; i < to_bits; i++) {
-		intern->bitset_val[i / CHAR_BIT] ^= (param->bitset_val[i / CHAR_BIT] & (1 << (i % CHAR_BIT)));
+	for (i = 0; i < to_bits; i++) {
+		intern->bitset_val[i] ^= param->bitset_val[i];
 	}
 }
 /* }}} */
