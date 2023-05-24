@@ -21,6 +21,7 @@ acinclude*
 libtool
 .libs
 .deps
+*.dep
 *.la
 modules
 run-tests.php

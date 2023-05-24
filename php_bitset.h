@@ -1,8 +1,6 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 5                                                        |
-  +----------------------------------------------------------------------+
-  | Copyright (c) 1997-2012 The PHP Group                                |
+  | Copyright (c) The PHP Group                                          |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -15,8 +13,6 @@
   | Authors: Will Fitch <willfitch@php.net>                              |
   |          Alexander Veremyev <cawa@csa.ru>                            |
   +----------------------------------------------------------------------+
-
-  $Id$
 */
 
 #ifndef PHP_BITSET_H
