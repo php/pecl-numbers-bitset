@@ -16,11 +16,10 @@
   <email>remi@php.net</email>
   <active>yes</active>
  </lead>
- <date>2017-10-05</date>
- <time>21:00:00</time>
+ <date>2023-05-25</date>
  <version>
-  <release>3.0.1</release>
-  <api>3.0.1</api>
+  <release>3.1.0</release>
+  <api>3.1.0</api>
  </version>
  <stability>
   <release>stable</release>
@@ -28,7 +27,10 @@
  </stability>
  <license uri="https://www.php.net/license/3_01.txt" filesource="LICENSE">PHP-3.01</license>
  <notes>
-     - Fixed out of bounds bug (thanks kgodet)
+- add support for PHP 8.2
+- fix #63315: BitSet::fromArray may modify original array value (cmb)
+- add type hinting
+- minor optimizations
  </notes>
  <contents>
   <dir name="/">
@@ -84,6 +86,21 @@
  <providesextension>bitset</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2017-10-05</date>
+   <version>
+    <release>3.0.1</release>
+    <api>3.0.1</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="https://www.php.net/license/3_01.txt" filesource="LICENSE">PHP-3.01</license>
+   <notes>
+- Fixed out of bounds bug (thanks kgodet)
+   </notes>
+  </release>
   <release>
    <version>
     <release>1.0.1</release>
