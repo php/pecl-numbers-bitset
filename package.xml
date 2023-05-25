@@ -21,8 +21,8 @@
  </lead>
  <date>2023-05-25</date>
  <version>
-  <release>3.1.1dev</release>
-  <api>3.1.0</api>
+  <release>3.2.0dev</release>
+  <api>3.2.0</api>
  </version>
  <stability>
   <release>stable</release>
@@ -30,7 +30,8 @@
  </stability>
  <license uri="https://www.php.net/license/3_01.txt" filesource="LICENSE">PHP-3.01</license>
  <notes>
-- fix BitSet::fromArray to allow setting bit 0
+- fix BitSet::fromArray() to allow setting bit 0
+- add BitSet::fromInteger() and BitSet::toInteger()
  </notes>
  <contents>
   <dir name="/">
@@ -41,6 +42,7 @@
 	  <file name="BitSet_clear.phpt" role="test" />
 	  <file name="BitSet_construct.phpt" role="test" />
       <file name="BitSet_fromArray.phpt" role="test" />
+      <file name="BitSet_fromInteger.phpt" role="test" />
       <file name="BitSet_fromRawValue.phpt" role="test" />
 	  <file name="BitSet_fromString.phpt" role="test" />
 	  <file name="BitSet_get.phpt" role="test" />

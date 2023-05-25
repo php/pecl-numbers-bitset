@@ -719,6 +719,59 @@ PHP_METHOD(BitSet, toArray)
 }
 /* }}} */
 
+/* {{{ proto BitSet BitSet::fromInteger(integer value)
+ * Returns a new Bitset instance based on the input value
+ */
+PHP_METHOD(BitSet, fromInteger)
+{
+	php_bitset_object *newobj;
+	zend_class_entry *ce = bitset_class_entry;
+	zend_long value;
+	int i;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "l", &value) == FAILURE) {
+		RETURN_THROWS();
+	}
+
+	newobj = php_bitset_object_new(ce);
+
+	bitset_initialize_object(newobj, sizeof(value) * CHAR_BIT);
+
+	for (i = 0; i < sizeof(value) ; i++) {
+		newobj->bitset_val[i] |= value & ((1 << CHAR_BIT) -1);
+		value >>= CHAR_BIT;
+	}
+
+	ZVAL_OBJ(return_value, &newobj->zo);
+}
+/* }}} */
+
+/* {{{ proto integer BitSet::toInteger(void)
+   Returns the on bits as an integer */
+PHP_METHOD(BitSet, toInteger)
+{
+	php_bitset_object *intern;
+	int i;
+	zend_long value = 0;
+
+	if (zend_parse_parameters_none() == FAILURE) {
+		RETURN_THROWS();
+	}
+
+	intern = bitset_get_intern_object(getThis());
+	if (intern->bitset_len > sizeof(value)) {
+		zend_throw_exception_ex(spl_ce_InvalidArgumentException, 0,
+								"The total bits doesn't fit in an integer");
+		RETURN_THROWS();
+	}
+
+	for (i = 0; i < intern->bitset_len; i++) {
+		value |= intern->bitset_val[i] << (i * CHAR_BIT);
+	}
+	RETURN_LONG(value);
+}
+/* }}} */
+
 /* {{{ proto void BitSet::xorOp(BitSet set)
    Performs an XOR operation against the current object bit set with the specified argument */
 PHP_METHOD(BitSet, xorOp)

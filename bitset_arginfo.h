@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 16b1af03e842aa7ce2902e0c18c776b400932643 */
+ * Stub hash: 8da3818a0101d81ea3e553f6c3afbe1773ce2c55 */
 
 ZEND_BEGIN_ARG_INFO_EX(arginfo_class_BitSet___construct, 0, 0, 0)
 	ZEND_ARG_TYPE_INFO_WITH_DEFAULT_VALUE(0, value, IS_LONG, 0, "0")
@@ -21,6 +21,10 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_class_BitSet_fromArray, 0, 1, BitSet, 0)
 	ZEND_ARG_TYPE_INFO(0, arr, IS_ARRAY, 0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_class_BitSet_fromInteger, 0, 1, BitSet, 0)
+	ZEND_ARG_TYPE_INFO(0, value, IS_LONG, 0)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_WITH_RETURN_OBJ_INFO_EX(arginfo_class_BitSet_fromString, 0, 1, BitSet, 0)
@@ -64,6 +68,8 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_class_BitSet_toArray, 0, 0, IS_ARRAY, 0)
 ZEND_END_ARG_INFO()
 
+#define arginfo_class_BitSet_toInteger arginfo_class_BitSet_cardinality
+
 #define arginfo_class_BitSet_xorOp arginfo_class_BitSet_andOp
 
 #define arginfo_class_BitSet___toString arginfo_class_BitSet_getRawValue
@@ -75,6 +81,7 @@ ZEND_METHOD(BitSet, andNotOp);
 ZEND_METHOD(BitSet, cardinality);
 ZEND_METHOD(BitSet, clear);
 ZEND_METHOD(BitSet, fromArray);
+ZEND_METHOD(BitSet, fromInteger);
 ZEND_METHOD(BitSet, fromString);
 ZEND_METHOD(BitSet, fromRawValue);
 ZEND_METHOD(BitSet, get);
@@ -90,6 +97,7 @@ ZEND_METHOD(BitSet, previousSetBit);
 ZEND_METHOD(BitSet, set);
 ZEND_METHOD(BitSet, size);
 ZEND_METHOD(BitSet, toArray);
+ZEND_METHOD(BitSet, toInteger);
 ZEND_METHOD(BitSet, xorOp);
 ZEND_METHOD(BitSet, __toString);
 
@@ -101,6 +109,7 @@ static const zend_function_entry class_BitSet_methods[] = {
 	ZEND_ME(BitSet, cardinality, arginfo_class_BitSet_cardinality, ZEND_ACC_PUBLIC)
 	ZEND_ME(BitSet, clear, arginfo_class_BitSet_clear, ZEND_ACC_PUBLIC)
 	ZEND_ME(BitSet, fromArray, arginfo_class_BitSet_fromArray, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
+	ZEND_ME(BitSet, fromInteger, arginfo_class_BitSet_fromInteger, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
 	ZEND_ME(BitSet, fromString, arginfo_class_BitSet_fromString, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
 	ZEND_ME(BitSet, fromRawValue, arginfo_class_BitSet_fromRawValue, ZEND_ACC_PUBLIC|ZEND_ACC_STATIC)
 	ZEND_ME(BitSet, get, arginfo_class_BitSet_get, ZEND_ACC_PUBLIC)
@@ -116,6 +125,7 @@ static const zend_function_entry class_BitSet_methods[] = {
 	ZEND_ME(BitSet, set, arginfo_class_BitSet_set, ZEND_ACC_PUBLIC)
 	ZEND_ME(BitSet, size, arginfo_class_BitSet_size, ZEND_ACC_PUBLIC)
 	ZEND_ME(BitSet, toArray, arginfo_class_BitSet_toArray, ZEND_ACC_PUBLIC)
+	ZEND_ME(BitSet, toInteger, arginfo_class_BitSet_toInteger, ZEND_ACC_PUBLIC)
 	ZEND_ME(BitSet, xorOp, arginfo_class_BitSet_xorOp, ZEND_ACC_PUBLIC)
 	ZEND_ME(BitSet, __toString, arginfo_class_BitSet___toString, ZEND_ACC_PUBLIC)
 	ZEND_FE_END

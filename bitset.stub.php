@@ -19,6 +19,8 @@ class BitSet {
 
 	static public function fromArray(array $arr): BitSet {}
 
+	static public function fromInteger(int $value): BitSet {}
+
 	static public function fromString(string $str): BitSet {}
 
 	static public function fromRawValue(string $str): BitSet {}
@@ -48,6 +50,8 @@ class BitSet {
 	public function size(): int {}
 
 	public function toArray(): array {}
+
+	public function toInteger(): int {}
 
 	public function xorOp(BitSet $set): void {}
 
