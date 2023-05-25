@@ -18,7 +18,7 @@
  </lead>
  <date>2023-05-25</date>
  <version>
-  <release>3.1.0</release>
+  <release>3.1.1dev</release>
   <api>3.1.0</api>
  </version>
  <stability>
@@ -27,10 +27,7 @@
  </stability>
  <license uri="https://www.php.net/license/3_01.txt" filesource="LICENSE">PHP-3.01</license>
  <notes>
-- add support for PHP 8.2
-- fix #63315: BitSet::fromArray may modify original array value (cmb)
-- add type hinting
-- minor optimizations
+-
  </notes>
  <contents>
   <dir name="/">
@@ -86,6 +83,24 @@
  <providesextension>bitset</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2023-05-25</date>
+   <version>
+    <release>3.1.0</release>
+    <api>3.1.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="https://www.php.net/license/3_01.txt" filesource="LICENSE">PHP-3.01</license>
+   <notes>
+- add support for PHP 8.2
+- fix #63315: BitSet::fromArray may modify original array value (cmb)
+- add type hinting
+- minor optimizations
+   </notes>
+  </release>
   <release>
    <date>2017-10-05</date>
    <version>
