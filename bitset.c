@@ -154,7 +154,7 @@ PHP_METHOD(BitSet, andNotOp)
 PHP_METHOD(BitSet, cardinality)
 {
 	php_bitset_object *intern;
-	long i = 0, total_bits = 0, true_bits = 0;
+	long i, total_bits, true_bits = 0;
 
 	if (zend_parse_parameters_none() == FAILURE) {
 		RETURN_THROWS();
@@ -164,7 +164,7 @@ PHP_METHOD(BitSet, cardinality)
 
 	total_bits = intern->bitset_len * CHAR_BIT;
 
-	for (; i < total_bits; i++) {
+	for (i = 0; i < total_bits; i++) {
 		if (intern->bitset_val[i / CHAR_BIT] & (1 << (i % CHAR_BIT))) {
 			true_bits++;
 		}
@@ -631,7 +631,7 @@ PHP_METHOD(BitSet, fromString)
 	php_bitset_object *newobj;
 	zend_class_entry *ce = bitset_class_entry;
 	zend_string *str = NULL;
-	int i = 0;
+	int i;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &str) == FAILURE) {
 		RETURN_THROWS();
@@ -645,7 +645,7 @@ PHP_METHOD(BitSet, fromString)
 		bitset_initialize_object(newobj, BITSET_DEFAULT_BITS);
 	}
 
-	for (; i < str->len; i++) {
+	for (i = 0; i < str->len; i++) {
 		/* If the char is explicitly '1', set it as 1. Otherwise, it's 0 */
 		if (str->val[i] == '1') {
 			newobj->bitset_val[i / CHAR_BIT] |= (1 << (i % CHAR_BIT));
@@ -666,7 +666,7 @@ PHP_METHOD(BitSet, fromArray)
 	zval *bit_array;
 	zval *entry;
 	zend_class_entry *ce = bitset_class_entry;
-	long array_len = 0, highest_value = 0, entry_actual = 0;
+	long array_len, highest_value, entry_actual;
 
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "a", &bit_array) == FAILURE) {
 		RETURN_THROWS();
@@ -701,7 +701,7 @@ PHP_METHOD(BitSet, fromArray)
 PHP_METHOD(BitSet, toArray)
 {
 	php_bitset_object *intern;
-	long i = 0, total_bits = 0;
+	long i, total_bits;
 
 	if (zend_parse_parameters_none() == FAILURE) {
 		RETURN_THROWS();
@@ -711,7 +711,7 @@ PHP_METHOD(BitSet, toArray)
 	array_init(return_value);
 	total_bits = intern->bitset_len * CHAR_BIT;
 
-	for (; i < total_bits; i++) {
+	for (i = 0; i < total_bits; i++) {
 		if (intern->bitset_val[i / CHAR_BIT] & (1 << (i % CHAR_BIT))) {
 			add_next_index_long(return_value, i);
 		}
