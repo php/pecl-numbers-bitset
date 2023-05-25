@@ -345,7 +345,7 @@ PHP_METHOD(BitSet, isEmpty)
 PHP_METHOD(BitSet, length)
 {
 	php_bitset_object *intern;
-	long highest_bit = -1, i = 0;
+	long highest_bit = -1, i;
 
 	if (zend_parse_parameters_none() == FAILURE) {
 		RETURN_THROWS();
