@@ -738,7 +738,7 @@ PHP_METHOD(BitSet, fromInteger)
 	bitset_initialize_object(newobj, sizeof(value) * CHAR_BIT);
 
 	for (i = 0; i < sizeof(value) ; i++) {
-		newobj->bitset_val[i] |= value & ((1 << CHAR_BIT) -1);
+		newobj->bitset_val[i] = value & ((1 << CHAR_BIT) -1);
 		value >>= CHAR_BIT;
 	}
 
