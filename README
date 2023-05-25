@@ -1,16 +1,15 @@
 BITSET
 Released under the PHP License 3.01
 
-The BitSet library assists by providing a mechanism to manage sets of bits. This 
-provides a similar API (object-based) to java.util.BitSet with some PHP-specific 
-flavoring. 
+The BitSet extension assists by providing a mechanism to manage sets of bits.
+This provides a similar API (object-based) to java.util.BitSet with some
+PHP-specific flavoring.
 
-The original functions provided under 1.0 are still available, though deprecated 
-as of 2.0 and will be removed under 3.0.
 
 IMPORTANT
 ---------
-Versions 2.0 and higher of this extension require PHP 5.3+
+Versions 3.0 and higher of this extension require PHP 7+
+
 
 COMPILATION
 -----------
@@ -22,7 +21,14 @@ COMPILATION
 - Add the extension loading directive to your php.ini
 	extension=bitset.so
 
+
+INSTALLATION FROM PECL
+----------------------
+
+- pecl install bitset
+
+
 REPORTING BUGS
 --------------
 
-Please report all bugs to the PHP Bug system at http://bugs.php.net/. Choose the 'Bitset' option under 'Packages affected'
+Please report all bugs at https://github.com/php/pecl-numbers-bitset/issues

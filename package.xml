@@ -2,8 +2,11 @@
 <package packagerversion="1.9.0" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
  <name>bitset</name>
  <channel>pecl.php.net</channel>
- <summary>BITSET library</summary>
- <description>Bitsets manipulation library</description>
+ <summary>BITSET extension</summary>
+ <description>
+  The BitSet extension assists by providing a mechanism to manage sets of bits.
+  This provides a similar API (object-based) to java.util.BitSet with some PHP-specific flavoring.
+ </description>
  <lead>
   <name>Will Fitch</name>
   <user>willfitch</user>
