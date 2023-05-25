@@ -681,12 +681,12 @@ PHP_METHOD(BitSet, fromArray)
 	}
 
 	highest_value = bitset_get_highest_value_from_array(bit_array);
-	bitset_initialize_object(newobj, highest_value);
+	bitset_initialize_object(newobj, highest_value+1);
 
 	ZEND_HASH_FOREACH_VAL(Z_ARRVAL_P(bit_array), entry) {
 		zend_long entry_long = zval_get_long(entry);
 
-		if (entry_long > 0) {
+		if (entry_long >= 0) {
 			entry_actual = entry_long / CHAR_BIT;
 			newobj->bitset_val[entry_actual] |= (1 << (entry_long % CHAR_BIT));
 		}
