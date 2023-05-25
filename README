@@ -14,7 +14,7 @@ Versions 3.0 and higher of this extension require PHP 7+
 COMPILATION
 -----------
 
-- Uncompress the tarball
+- Uncompress the tarball or clone the git repository
 - Run phpize
 - Run ./configure [--enable-bitset]
 - Run make, then make install.
