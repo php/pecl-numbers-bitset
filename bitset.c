@@ -803,7 +803,7 @@ PHP_METHOD(BitSet, __toString)
 {
 	php_bitset_object *intern = NULL;
 	zend_string *retval;
-	unsigned char *internval = NULL;
+	char *internval = NULL;
 	long len, i;
 
 	if (zend_parse_parameters_none() == FAILURE) {
@@ -816,15 +816,13 @@ PHP_METHOD(BitSet, __toString)
 		RETURN_EMPTY_STRING();
 	} else {
 		len = intern->bitset_len * CHAR_BIT;
-		internval = (unsigned char *) emalloc(len + 1);
+		retval = zend_string_alloc(len, 0);
+		internval = ZSTR_VAL(retval);
 		internval[len] = '\0';
 
 		for (i = 0; i < len; i++) {
 			internval[i] = ((intern->bitset_val[i / CHAR_BIT] >> (i % CHAR_BIT)) & 1) ? '1' : '0';
 		}
-
-		retval = zend_string_init((const char *) internval, strlen((const char *) internval), 0);
-		efree(internval);
 
 		RETURN_STR(retval);
 	}
