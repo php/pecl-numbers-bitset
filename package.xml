@@ -21,7 +21,7 @@
  </lead>
  <date>2023-05-26</date>
  <version>
-  <release>3.2.0</release>
+  <release>3.2.1dev</release>
   <api>3.2.0</api>
  </version>
  <stability>
@@ -30,8 +30,7 @@
  </stability>
  <license uri="https://www.php.net/license/3_01.txt" filesource="LICENSE">PHP-3.01</license>
  <notes>
-- fix BitSet::fromArray() to allow setting bit 0
-- add BitSet::fromInteger() and BitSet::toInteger()
+-
  </notes>
  <contents>
   <dir name="/">
@@ -88,6 +87,22 @@
  <providesextension>bitset</providesextension>
  <extsrcrelease />
  <changelog>
+  <release>
+   <date>2023-05-26</date>
+   <version>
+    <release>3.2.0</release>
+    <api>3.2.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="https://www.php.net/license/3_01.txt" filesource="LICENSE">PHP-3.01</license>
+   <notes>
+- fix BitSet::fromArray() to allow setting bit 0
+- add BitSet::fromInteger() and BitSet::toInteger()
+   </notes>
+  </release>
   <release>
    <date>2023-05-25</date>
    <version>
