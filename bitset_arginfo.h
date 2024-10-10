@@ -74,7 +74,6 @@ ZEND_END_ARG_INFO()
 
 #define arginfo_class_BitSet___toString arginfo_class_BitSet_getRawValue
 
-
 ZEND_METHOD(BitSet, __construct);
 ZEND_METHOD(BitSet, andOp);
 ZEND_METHOD(BitSet, andNotOp);
@@ -100,7 +99,6 @@ ZEND_METHOD(BitSet, toArray);
 ZEND_METHOD(BitSet, toInteger);
 ZEND_METHOD(BitSet, xorOp);
 ZEND_METHOD(BitSet, __toString);
-
 
 static const zend_function_entry class_BitSet_methods[] = {
 	ZEND_ME(BitSet, __construct, arginfo_class_BitSet___construct, ZEND_ACC_PUBLIC)
@@ -136,7 +134,11 @@ static zend_class_entry *register_class_BitSet(void)
 	zend_class_entry ce, *class_entry;
 
 	INIT_CLASS_ENTRY(ce, "BitSet", class_BitSet_methods);
+#if (PHP_VERSION_ID >= 80400)
+	class_entry = zend_register_internal_class_with_flags(&ce, NULL, 0);
+#else
 	class_entry = zend_register_internal_class_ex(&ce, NULL);
+#endif
 
 	return class_entry;
 }
