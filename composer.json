@@ -1,0 +1,12 @@
+{
+    "name": "pecl/numbers-bitset",
+    "type": "php-ext",
+    "license": "PHP-3.01",
+    "description": "The BitSet extension assists by providing a mechanism to manage sets of bits.",
+    "require": {
+        "php": ">= 7.0.0"
+    },
+    "php-ext": {
+        "extension-name": "bitset"
+    }
+}
