@@ -1,4 +1,4 @@
-# Version 3.2.1 - NOT RELEASED
+# Version 3.2.1 - 2026-10-08
 
 - Compatibility with PHP 8.6
 
