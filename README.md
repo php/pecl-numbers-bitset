@@ -22,6 +22,12 @@ COMPILATION
 	extension=bitset.so
 
 
+INSTALLATION FROM PIE
+----------------------
+
+- pie install pecl/bitset
+
+
 INSTALLATION FROM PECL
 ----------------------
 
