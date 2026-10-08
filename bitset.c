@@ -945,7 +945,7 @@ PHP_MINIT_FUNCTION(bitset)
 	memcpy(&bitset_object_handlers, zend_get_std_object_handlers(), sizeof(bitset_object_handlers));
 	bitset_object_handlers.free_obj = bitset_free_object;
 	bitset_object_handlers.dtor_obj = bitset_destroy_object;
-	bitset_object_handlers.offset = XtOffsetOf(php_bitset_object, zo);
+	bitset_object_handlers.offset = offsetof(php_bitset_object, zo);
 
 	return SUCCESS;
 }

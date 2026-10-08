@@ -48,7 +48,7 @@ PHP_MINFO_FUNCTION(bitset);
 
 static inline php_bitset_object *php_bitset_fetch_object(zend_object *obj)
 {
-	return (php_bitset_object *)((char *)(obj) - XtOffsetOf(php_bitset_object, zo));
+	return (php_bitset_object *)((char *)(obj) - offsetof(php_bitset_object, zo));
 }
 
 #endif
