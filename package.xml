@@ -30,7 +30,7 @@
  </stability>
  <license uri="https://www.php.net/license/3_01.txt" filesource="LICENSE">PHP-3.01</license>
  <notes>
--
+- Compatibility with PHP 8.6
  </notes>
  <contents>
   <dir name="/">
@@ -70,7 +70,8 @@
     <file name="config.w32" role="src" />
     <file name="CREDITS" role="doc" />
     <file name="php_bitset.h" role="src" />
-    <file name="README" role="doc" />
+    <file name="README.md" role="doc" />
+    <file name="CHANGELOG.md" role="doc" />
     <file name="TODO" role="doc" />
   </dir>
  </contents>
